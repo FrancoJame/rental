@@ -1,0 +1,165 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}{{ listing.title }} - Dream House Uganda{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Breadcrumbs / Back button -->
+    <div class="mb-4">
+        <a href="{% url 'home' %}" class="btn btn-outline-custom d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i> Back to Rentals
+        </a>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- Left Column: Carousel & Details -->
+        <div class="col-lg-8">
+            
+            <!-- Large Image Carousel -->
+            <div id="listingDetailCarousel" class="carousel slide detail-carousel mb-4" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#listingDetailCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#listingDetailCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#listingDetailCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner h-100">
+                    <div class="carousel-item active h-100">
+                        <img src="{{ listing.image_front.url }}" alt="Front View" class="d-block w-100">
+                        <div class="carousel-caption d-none d-md-block carousel-caption-custom">
+                            <h5 class="m-0 text-white fw-bold">Front View</h5>
+                        </div>
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="{{ listing.image_inside.url }}" alt="Inside View" class="d-block w-100">
+                        <div class="carousel-caption d-none d-md-block carousel-caption-custom">
+                            <h5 class="m-0 text-white fw-bold">Inside Room</h5>
+                        </div>
+                    </div>
+                    <div class="carousel-item h-100">
+                        <img src="{{ listing.image_other.url }}" alt="Other View" class="d-block w-100">
+                        <div class="carousel-caption d-none d-md-block carousel-caption-custom">
+                            <h5 class="m-0 text-white fw-bold">Other / Outer Compound View</h5>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#listingDetailCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#listingDetailCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+
+            <!-- Main Listing Details Card -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                
+                <!-- Room type & Posted time -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+                    <span class="badge bg-secondary px-3 py-2 text-uppercase fw-semibold" style="font-size: 0.75rem;">{{ listing.get_room_type_display }}</span>
+                    <div class="text-muted small d-flex align-items-center gap-1">
+                        <i class="bi bi-clock-history"></i> Posted {{ listing.created_at|timesince }} ago ({{ listing.created_at|date:"F d, Y h:i A" }})
+                    </div>
+                </div>
+                
+                <!-- Listing Title -->
+                <h1 class="fw-bold mb-3">{{ listing.title }}</h1>
+                
+                <!-- CRITICAL REQUIREMENT: LOCATION PROMINENCE IN DETAIL VIEW -->
+                <div class="listing-location-wrapper my-3 p-3">
+                    <h5 class="m-0 fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-geo-alt-fill text-danger fs-4 location-icon-pulse"></i>
+                        <span>House Location:</span>
+                        <span class="text-success">{{ listing.location }}</span>
+                    </h5>
+                </div>
+
+                <!-- Price and availability details -->
+                <div class="d-flex align-items-baseline gap-2 mb-4">
+                    <span class="price-tag fs-2">{{ listing.price_formatted }}</span>
+                    <span class="price-period fs-6">per month</span>
+                </div>
+                
+                <hr class="my-4 text-secondary">
+                
+                <!-- Room Description -->
+                <h4 class="fw-bold text-dark mb-3">Room Description</h4>
+                <p class="text-secondary" style="line-height: 1.7; white-space: pre-line;">{{ listing.description }}</p>
+                
+                <hr class="my-4 text-secondary">
+                
+                <!-- Key Amenities -->
+                <h4 class="fw-bold text-dark mb-3">House Amenities</h4>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center gap-2 p-3 rounded-3 {% if listing.in_gate %}bg-emerald-light border border-success-subtle text-success{% else %}bg-light text-muted{% endif %}" style="background-color: {% if listing.in_gate %}var(--primary-light){% else %}#f8fafc{% endif %};">
+                            <i class="bi {% if listing.in_gate %}bi-shield-fill-check{% else %}bi-shield-fill-x{% endif %} fs-4"></i>
+                            <div>
+                                <h6 class="m-0 fw-bold">Gated Compound</h6>
+                                <span class="small">{% if listing.in_gate %}Inside secure gate{% else %}No gate compound{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="d-flex align-items-center gap-2 p-3 rounded-3 {% if listing.inner_bathroom %}bg-emerald-light border border-success-subtle text-success{% else %}bg-light text-muted{% endif %}" style="background-color: {% if listing.inner_bathroom %}var(--primary-light){% else %}#f8fafc{% endif %};">
+                            <i class="bi {% if listing.inner_bathroom %}bi-droplet-fill{% else %}bi-droplet{% endif %} fs-4"></i>
+                            <div>
+                                <h6 class="m-0 fw-bold">Inner Bathroom</h6>
+                                <span class="small">{% if listing.inner_bathroom %}Private indoor bathroom{% else %}Shared/External bathroom{% endif %}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column: Landlord details & Contacts sticky card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 text-center sticky-top" style="top: 100px; z-index: 10;">
+                
+                <div class="mb-3">
+                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
+                        <i class="bi bi-person-fill fs-1"></i>
+                    </div>
+                </div>
+                
+                <h4 class="fw-bold text-dark mb-1">{{ listing.landlord.first_name }} {{ listing.landlord.last_name }}</h4>
+                <p class="text-muted small mb-4">Property Landlord / Manager</p>
+                
+                <div class="listing-location-wrapper my-3 p-2 bg-light text-center border-0 rounded-3">
+                    <span class="text-muted small">Listed Location: </span>
+                    <strong class="text-dark">{{ listing.location }}</strong>
+                </div>
+
+                <div class="bg-light p-3 rounded-3 mb-4 text-start">
+                    <div class="d-flex align-items-center gap-2 mb-2 text-dark">
+                        <i class="bi bi-telephone-fill text-success"></i>
+                        <span class="fw-bold">{{ listing.telephone }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 text-muted small">
+                        <i class="bi bi-clock"></i>
+                        <span>Best time to call: 8:00 AM - 8:00 PM</span>
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-3">Contact Immediately</h5>
+                <div class="d-grid gap-2">
+                    <a href="tel:{{ listing.telephone }}" class="btn btn-emerald btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-telephone"></i> Call Landlord
+                    </a>
+                    <a href="{{ listing.whatsapp_url }}" target="_blank" class="btn btn-whatsapp btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+                    </a>
+                </div>
+                
+                <hr class="my-4 text-secondary">
+                <span class="text-muted small">Mention you found this room on <strong>Dream House Uganda</strong></span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

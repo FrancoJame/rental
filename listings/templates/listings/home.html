@@ -1,0 +1,269 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Dream House Uganda - Rent Single, Double & Self-Contained Rooms{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Hero Banner -->
+    <div class="hero-section text-center text-md-start px-4 px-md-5">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <span class="badge bg-success mb-2 px-3 py-2 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Premium Rental Finder</span>
+                <h1 class="text-white display-4 fw-extrabold mb-3">Find Your Ideal Room in Uganda</h1>
+                <p class="text-light-50 fs-5 mb-4" style="opacity: 0.85;">
+                    Instantly browse and filter single rooms, double rooms, and self-contained apartments. Contact landlords directly via phone call or WhatsApp.
+                </p>
+                <div class="d-flex flex-wrap gap-3 justify-content-center justify-content-md-start">
+                    <a href="#listings-section" class="btn btn-light btn-lg fw-bold text-success px-4">Browse Listings</a>
+                    <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg fw-bold px-4">List Your House</a>
+                </div>
+            </div>
+            <div class="col-lg-5 d-none d-lg-block text-center">
+                <i class="bi bi-houses-fill" style="font-size: 10rem; color: rgba(255,255,255,0.15);"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listings & Filters Grid -->
+    <div class="row g-4 mt-1" id="listings-section">
+        
+        <!-- Collapsible Mobile Filter Trigger -->
+        <div class="col-12 d-block d-md-none">
+            <button class="btn btn-emerald w-100 py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" type="button" data-bs-toggle="collapse" data-bs-target="#mobileFilters" aria-expanded="false" aria-controls="mobileFilters" id="mobile-filter-toggle">
+                <i class="bi bi-sliders"></i> Filter Rentals ({% if selected_location or selected_room_type or selected_price_max %}Active{% else %}All{% endif %})
+            </button>
+            <div class="collapse mt-2" id="mobileFilters">
+                <div class="card card-body border-0 shadow-sm rounded-4">
+                    <form method="GET" action="{% url 'home' %}">
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold text-secondary">Location</label>
+                            <select name="location" class="form-select rounded-3">
+                                <option value="">Any Location</option>
+                                {% for loc in location_list %}
+                                    <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold text-secondary">Room Type</label>
+                            <select name="room_type" class="form-select rounded-3">
+                                <option value="">Any Type</option>
+                                <option value="single" {% if selected_room_type == 'single' %}selected{% endif %}>Single Room</option>
+                                <option value="double" {% if selected_room_type == 'double' %}selected{% endif %}>Double Room</option>
+                                <option value="self_contained" {% if selected_room_type == 'self_contained' %}selected{% endif %}>Self-contained Room</option>
+                            </select>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label small text-uppercase fw-bold text-secondary">Max Budget (UGX)</label>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span class="text-muted small">0 UGX</span>
+                                <span class="text-success fw-bold small" id="mobilePriceVal">{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}</span>
+                            </div>
+                            <input type="range" class="form-range" name="price_max" min="0" max="{{ max_price_limit }}" step="50000" value="{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}" oninput="document.getElementById('mobilePriceVal').innerText = Number(this.value).toLocaleString() + ' UGX'">
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-emerald py-2">Apply Filters</button>
+                            <a href="{% url 'home' %}" class="btn btn-light py-2">Reset Filters</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Filter (Desktop) -->
+        <div class="col-md-4 col-lg-3 d-none d-md-block">
+            <div class="filter-card rounded-4">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-sliders text-success"></i> Filter Options
+                </h5>
+                <hr class="my-3 text-secondary">
+                <form method="GET" action="{% url 'home' %}">
+                    <div class="mb-4">
+                        <label class="form-label small text-uppercase fw-bold text-secondary">Location</label>
+                        <select name="location" class="form-select rounded-3">
+                            <option value="">Any Location</option>
+                            {% for loc in location_list %}
+                                <option value="{{ loc }}" {% if selected_location == loc %}selected{% endif %}>{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small text-uppercase fw-bold text-secondary">Room Type</label>
+                        <select name="room_type" class="form-select rounded-3">
+                            <option value="">Any Type</option>
+                            <option value="single" {% if selected_room_type == 'single' %}selected{% endif %}>Single Room</option>
+                            <option value="double" {% if selected_room_type == 'double' %}selected{% endif %}>Double Room</option>
+                            <option value="self_contained" {% if selected_room_type == 'self_contained' %}selected{% endif %}>Self-contained Room</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label class="form-label small text-uppercase fw-bold text-secondary">Max Budget (UGX)</label>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span class="text-muted small">0 UGX</span>
+                            <span class="text-success fw-bold small" id="desktopPriceVal">{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}</span>
+                        </div>
+                        <input type="range" class="form-range" name="price_max" min="0" max="{{ max_price_limit }}" step="50000" value="{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}" oninput="document.getElementById('desktopPriceVal').innerText = Number(this.value).toLocaleString() + ' UGX'">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-emerald py-2">Apply Filters</button>
+                        <a href="{% url 'home' %}" class="btn btn-light py-2">Reset Filters</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Listings Grid -->
+        <div class="col-md-8 col-lg-9">
+            
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <p class="text-muted mb-0">
+                    Showing <span class="fw-bold text-dark">{{ listings|length }}</span> available rooms
+                </p>
+                <div class="dropdown">
+                    <span class="text-muted small">Sorted by: Latest first</span>
+                </div>
+            </div>
+
+            {% if listings %}
+                <div class="row g-4">
+                    {% for listing in listings %}
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="listing-card">
+                                
+                                <!-- Card Image Carousel -->
+                                <div class="card-img-container">
+                                    <span class="room-type-badge">{{ listing.get_room_type_display }}</span>
+                                    
+                                    <div id="carouselCard{{ listing.id }}" class="carousel slide h-100" data-bs-ride="false" data-bs-interval="false">
+                                        <div class="carousel-indicators">
+                                            <button type="button" data-bs-target="#carouselCard{{ listing.id }}" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+                                            <button type="button" data-bs-target="#carouselCard{{ listing.id }}" data-bs-slide-to="1" aria-label="Slide 2"></button>
+                                            <button type="button" data-bs-target="#carouselCard{{ listing.id }}" data-bs-slide-to="2" aria-label="Slide 3"></button>
+                                        </div>
+                                        <div class="carousel-inner h-100">
+                                            <div class="carousel-item active h-100">
+                                                <img src="{{ listing.image_front.url }}" alt="Front view of {{ listing.title }}">
+                                            </div>
+                                            <div class="carousel-item h-100">
+                                                <img src="{{ listing.image_inside.url }}" alt="Inside view of {{ listing.title }}">
+                                            </div>
+                                            <div class="carousel-item h-100">
+                                                <img src="{{ listing.image_other.url }}" alt="Other view of {{ listing.title }}">
+                                            </div>
+                                        </div>
+                                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselCard{{ listing.id }}" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" data-bs-target="#carouselCard{{ listing.id }}" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Card Content -->
+                                <div class="card-body p-3 d-flex flex-column">
+                                    
+                                    <!-- CRITICAL REQUIREMENT: LOCATION PROMINENCE -->
+                                    <div class="listing-location-wrapper">
+                                        <div class="location-text">
+                                            <i class="bi bi-geo-alt-fill location-icon-pulse"></i>
+                                            <span>{{ listing.location }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <h5 class="card-title fw-bold text-truncate mb-2" title="{{ listing.title }}">
+                                        <a href="{% url 'listing_detail' listing.id %}" class="text-decoration-none text-dark">{{ listing.title }}</a>
+                                    </h5>
+                                    
+                                    <!-- Pricing details -->
+                                    <div class="mb-3 d-flex align-items-baseline gap-1">
+                                        <span class="price-tag">{{ listing.price_formatted }}</span>
+                                        <span class="price-period">/ month</span>
+                                    </div>
+                                    
+                                    <!-- Key features -->
+                                    <div class="d-flex flex-wrap gap-2 mb-3">
+                                        {% if listing.in_gate %}
+                                            <span class="spec-tag active"><i class="bi bi-shield-check"></i> In Compound/Gate</span>
+                                        {% endif %}
+                                        {% if listing.inner_bathroom %}
+                                            <span class="spec-tag active"><i class="bi bi-droplet"></i> Inner Bath</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <p class="text-muted small text-truncate mb-3">{{ listing.description }}</p>
+                                    
+                                    <div class="mt-auto">
+                                        <!-- Post Age Indicator -->
+                                        <div class="text-muted small mb-3 d-flex align-items-center gap-1">
+                                            <i class="bi bi-clock-history"></i> Posted {{ listing.created_at|timesince }} ago
+                                        </div>
+                                        
+                                        <!-- Contact buttons -->
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <a href="tel:{{ listing.telephone }}" class="btn btn-outline-custom w-100 py-2 d-flex align-items-center justify-content-center gap-1">
+                                                    <i class="bi bi-telephone"></i> Call
+                                                </a>
+                                            </div>
+                                            <div class="col-6">
+                                                <a href="{{ listing.whatsapp_url }}" target="_blank" class="btn btn-whatsapp w-100 py-2 d-flex align-items-center justify-content-center gap-1">
+                                                    <i class="bi bi-whatsapp"></i> Chat
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- Empty State -->
+                <div class="card border-0 shadow-sm text-center py-5 px-4 rounded-4 mt-3">
+                    <div class="py-4">
+                        <i class="bi bi-search text-muted display-1 mb-3"></i>
+                        <h4 class="fw-bold text-dark mb-2">No Properties Found</h4>
+                        <p class="text-muted mx-auto mb-4" style="max-width: 400px;">
+                            We couldn't find any rooms matching your current search parameters. Try clearing some filters or searching in a wider budget range.
+                        </p>
+                        <a href="{% url 'home' %}" class="btn btn-emerald px-4 py-2">View All Rooms</a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Initialize price display formatting for ranges on document load
+    document.addEventListener("DOMContentLoaded", function() {
+        const desktopVal = document.getElementById('desktopPriceVal');
+        if(desktopVal) {
+            const rawVal = desktopVal.innerText;
+            if(!isNaN(rawVal)) {
+                desktopVal.innerText = Number(rawVal).toLocaleString() + " UGX";
+            }
+        }
+        const mobileVal = document.getElementById('mobilePriceVal');
+        if(mobileVal) {
+            const rawVal = mobileVal.innerText;
+            if(!isNaN(rawVal)) {
+                mobileVal.innerText = Number(rawVal).toLocaleString() + " UGX";
+            }
+        }
+    });
+</script>
+{% endblock %}

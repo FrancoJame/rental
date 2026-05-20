@@ -1,0 +1,72 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}About Us - Dream House Uganda{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Hero Banner -->
+    <div class="hero-section text-center px-4 py-5 rounded-4 mb-5">
+        <span class="badge bg-success mb-2 px-3 py-2 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Our Mission</span>
+        <h1 class="text-white display-4 fw-extrabold mb-3">Connecting You Directly to Your Next Home</h1>
+        <p class="text-light mx-auto fs-5 mb-0" style="max-width: 700px; opacity: 0.9;">
+            We believe that finding a place to live should be simple, convenient, and free from unfair broker charges.
+        </p>
+    </div>
+
+    <div class="row g-5 align-items-center">
+        <!-- Story / Mission content -->
+        <div class="col-lg-7">
+            <h2 class="fw-bold mb-4 text-dark">Why Dream House Uganda was Created</h2>
+            
+            <p class="text-secondary fs-5" style="line-height: 1.8;">
+                Across Uganda, countless citizens face frustration when searching for housing. Many struggle with the hefty fees demanded by <strong>house blockers (brokers)</strong>, who often charge expensive commission rates just to show you a room, or exploit house seekers with inflated rental fees.
+            </p>
+            
+            <p class="text-secondary" style="line-height: 1.7;">
+                <strong>Dream House Uganda</strong> was born to solve this exact problem. Our core purpose is to help fellow citizens acquire their dream house at a <strong>convenient price</strong> and <strong>desirable location</strong> without middlemen. By providing a platform where landlords upload their vacancies directly, we create a transparent ecosystem where customers can view real images, search by custom budgets, and contact owners directly via Call or WhatsApp—completely free of broker intervention.
+            </p>
+
+            <div class="row g-3 mt-4">
+                <div class="col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-patch-check-fill text-success fs-4"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Direct Landlord Contact</h6>
+                            <p class="text-muted small">No agents or brokers. Speak or text directly to the owner.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <div class="d-flex align-items-start gap-2">
+                        <i class="bi bi-cash-stack text-success fs-4"></i>
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1">Save Money</h6>
+                            <p class="text-muted small">Zero commission. Bypassing brokers saves you hundreds of thousands of UGX.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual side banner card -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-md rounded-4 p-4 text-center bg-white">
+                <div class="bg-emerald-light text-success rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style="background-color: var(--primary-light); width: 80px; height: 80px;">
+                    <i class="bi bi-house-heart fs-1"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-3">Our Core Promise</h4>
+                <p class="text-secondary small mb-4" style="line-height: 1.6;">
+                    "We promise to keep our platform free, open, and dedicated to the welfare of Ugandan tenants. Every citizen deserves a comfortable room at an honest price, without broker exploitation."
+                </p>
+                <div class="p-3 bg-light rounded-3 text-start">
+                    <h6 class="fw-bold text-dark mb-2">Want to list your house?</h6>
+                    <p class="text-muted small mb-3">Are you a landlord or property manager? Register today and display your rooms to thousands of Ugandan seekers.</p>
+                    <a href="{% url 'register' %}" class="btn btn-emerald w-100 py-2">Get Started Now</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

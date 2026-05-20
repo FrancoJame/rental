@@ -1,0 +1,197 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} House Listing - Housing.ug{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Navigation back -->
+    <div class="mb-4">
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-custom d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i> Back to Dashboard
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="form-card rounded-4">
+                
+                <!-- Form Header -->
+                <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                    <div class="bg-emerald-light text-success d-inline-flex align-items-center justify-content-center rounded-circle p-3" style="background-color: var(--primary-light); width: 60px; height: 60px;">
+                        <i class="bi bi-house-add-fill fs-2"></i>
+                    </div>
+                    <div>
+                        <h2 class="fw-bold text-dark m-0">{{ action }} Rental Listing</h2>
+                        <p class="text-muted small m-0">Fill in the details below to list your room online</p>
+                    </div>
+                </div>
+
+                <form method="POST" enctype="multipart/form-data" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger mb-4 rounded-3">
+                            <h6 class="fw-bold"><i class="bi bi-exclamation-octagon"></i> Please fix the errors in the form:</h6>
+                            <ul class="mb-0 small">
+                                {% for field in form %}
+                                    {% for error in field.errors %}
+                                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    <!-- Core Information Section -->
+                    <h5 class="fw-bold text-success mb-3"><i class="bi bi-info-circle-fill"></i> 1. Core Property Details</h5>
+                    
+                    <div class="row g-3 mb-4">
+                        <!-- Title -->
+                        <div class="col-md-8">
+                            <label class="form-label">{{ form.title.label }}</label>
+                            {{ form.title }}
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ form.title.help_text }}</span>
+                        </div>
+                        
+                        <!-- Room Type -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.room_type.label }}</label>
+                            {{ form.room_type }}
+                        </div>
+
+                        <!-- Price (UGX) -->
+                        <div class="col-md-4">
+                            <label class="form-label">{{ form.price_per_month.label }}</label>
+                            <div class="input-group">
+                                <span class="input-group-text">UGX</span>
+                                {{ form.price_per_month }}
+                            </div>
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ form.price_per_month.help_text }}</span>
+                        </div>
+                        
+                        <!-- Location (High visibility) -->
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold text-dark"><i class="bi bi-geo-alt-fill text-danger"></i> Location of the House</label>
+                            {{ form.location }}
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ form.location.help_text }}</span>
+                        </div>
+
+                        <!-- Landlord Telephone -->
+                        <div class="col-md-4">
+                            <label class="form-label"><i class="bi bi-telephone-fill text-success"></i> Landlord Phone Number</label>
+                            {{ form.telephone }}
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ form.telephone.help_text }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Description and Features Section -->
+                    <h5 class="fw-bold text-success mb-3"><i class="bi bi-card-text"></i> 2. Description & Amenities</h5>
+                    
+                    <div class="row g-3 mb-4">
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label class="form-label">{{ form.description.label }}</label>
+                            {{ form.description }}
+                            <span class="text-muted small" style="font-size: 0.75rem;">{{ form.description.help_text }}</span>
+                        </div>
+                        
+                        <!-- Amenities checks -->
+                        <div class="col-12">
+                            <div class="card p-3 bg-light border-0 rounded-3">
+                                <div class="row g-3">
+                                    <div class="col-sm-6 col-md-4">
+                                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                                            {{ form.in_gate }}
+                                            <label class="form-check-label fw-semibold text-secondary" for="id_in_gate">Is in a gated compound</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-4">
+                                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                                            {{ form.inner_bathroom }}
+                                            <label class="form-check-label fw-semibold text-secondary" for="id_inner_bathroom">Has inner private bathroom</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-4">
+                                        <div class="form-check form-switch d-flex align-items-center gap-2">
+                                            {{ form.is_available }}
+                                            <label class="form-check-label fw-semibold text-secondary" for="id_is_available">Available for rent</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Images Section -->
+                    <h5 class="fw-bold text-success mb-3"><i class="bi bi-images"></i> 3. Property Photos (Required)</h5>
+                    
+                    <div class="row g-4 mb-5">
+                        
+                        <!-- Image Front View -->
+                        <div class="col-md-4">
+                            <div class="card p-3 border rounded-3 h-100">
+                                <label class="form-label fw-semibold text-dark mb-2">Front View Photo</label>
+                                <div class="image-preview-box mb-3">
+                                    <img id="front-preview" src="{% if listing and listing.image_front %}{{ listing.image_front.url }}{% endif %}" alt="" {% if not listing or not listing.image_front %}style="display:none;"{% endif %}>
+                                    {% if not listing or not listing.image_front %}
+                                        <div class="image-preview-placeholder">
+                                            <i class="bi bi-image fs-2"></i>
+                                            <div>No image selected</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {{ form.image_front }}
+                                <span class="text-muted small mt-1" style="font-size: 0.7rem;">Show the outer view/compound.</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Inside View -->
+                        <div class="col-md-4">
+                            <div class="card p-3 border rounded-3 h-100">
+                                <label class="form-label fw-semibold text-dark mb-2">Inside Room Photo</label>
+                                <div class="image-preview-box mb-3">
+                                    <img id="inside-preview" src="{% if listing and listing.image_inside %}{{ listing.image_inside.url }}{% endif %}" alt="" {% if not listing or not listing.image_inside %}style="display:none;"{% endif %}>
+                                    {% if not listing or not listing.image_inside %}
+                                        <div class="image-preview-placeholder">
+                                            <i class="bi bi-image fs-2"></i>
+                                            <div>No image selected</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {{ form.image_inside }}
+                                <span class="text-muted small mt-1" style="font-size: 0.7rem;">Show the bedroom interior.</span>
+                            </div>
+                        </div>
+
+                        <!-- Image Other View -->
+                        <div class="col-md-4">
+                            <div class="card p-3 border rounded-3 h-100">
+                                <label class="form-label fw-semibold text-dark mb-2">Other Photo (eg. Bathroom)</label>
+                                <div class="image-preview-box mb-3">
+                                    <img id="other-preview" src="{% if listing and listing.image_other %}{{ listing.image_other.url }}{% endif %}" alt="" {% if not listing or not listing.image_other %}style="display:none;"{% endif %}>
+                                    {% if not listing or not listing.image_other %}
+                                        <div class="image-preview-placeholder">
+                                            <i class="bi bi-image fs-2"></i>
+                                            <div>No image selected</div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                {{ form.image_other }}
+                                <span class="text-muted small mt-1" style="font-size: 0.7rem;">Show bathroom or kitchen layout.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action buttons -->
+                    <div class="d-flex justify-content-end gap-3 border-top pt-4">
+                        <a href="{% url 'dashboard' %}" class="btn btn-light px-4 py-2 fs-6">Cancel</a>
+                        <button type="submit" class="btn btn-emerald px-5 py-2 fs-6 fw-bold">Save Listing</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

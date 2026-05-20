@@ -1,0 +1,108 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Policy Guidelines - Dream House Uganda{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Hero Banner -->
+    <div class="hero-section text-center px-4 py-5 rounded-4 mb-5">
+        <span class="badge bg-success mb-2 px-3 py-2 text-uppercase fw-semibold" style="letter-spacing: 0.05em;">Guidelines & Trust</span>
+        <h1 class="text-white display-4 fw-extrabold mb-3">Policy Guidelines</h1>
+        <p class="text-light mx-auto fs-5 mb-0" style="max-width: 700px; opacity: 0.9;">
+            Rules and best practices to ensure a secure, transparent, and broker-free house-hunting experience for all Ugandans.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        
+        <!-- Left: Customer Guidelines -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <h4 class="fw-bold text-success mb-3">
+                    <i class="bi bi-people-fill"></i> Guidelines for Customers
+                </h4>
+                <hr class="text-secondary my-3">
+                
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-x-circle-fill text-danger fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Never Pay Before Inspection:</strong>
+                            <p class="text-muted small mb-0">Do not send money (mobile money or cash) as "booking fees" before physically visiting the location and inspecting the room.</p>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-slash-circle-fill text-danger fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Say No to Broker Fees:</strong>
+                            <p class="text-muted small mb-0">Our platform is 100% free of brokers. If any person claiming to be a landlord demands "viewing fees" or agent commission, refuse and report them immediately.</p>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-shield-fill-exclamation text-warning fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Verify Landlord Identity:</strong>
+                            <p class="text-muted small mb-0">When inspecting the house, request to meet the property manager or caretaker directly at the compound to confirm legitimacy.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Right: Landlord Guidelines -->
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm rounded-4 p-4 h-100 bg-white">
+                <h4 class="fw-bold text-success mb-3">
+                    <i class="bi bi-house-check-fill"></i> Regulations for Landlords
+                </h4>
+                <hr class="text-secondary my-3">
+                
+                <ul class="list-unstyled">
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Accurate & Real Images:</strong>
+                            <p class="text-muted small mb-0">You must upload three distinct, real images showing the front view, the interior bedroom view, and any other layout (e.g. bathroom). Fake or stock photos will result in account suspension.</p>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Honest Pricing:</strong>
+                            <p class="text-muted small mb-0">Prices listed must be correct monthly rents in UGX. Do not add hidden agent surcharges or inflate the cost upon meeting the tenant.</p>
+                        </div>
+                    </li>
+                    <li class="mb-3 d-flex align-items-start gap-2">
+                        <i class="bi bi-check-circle-fill text-success fs-5 mt-0.5"></i>
+                        <div>
+                            <strong class="text-dark">Prompt Availability Updates:</strong>
+                            <p class="text-muted small mb-0">As soon as your room is rented out/taken, you must log into your dashboard and toggle its status to "Taken" to remove it from public search results.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Full Width: Anti-Broker & Reporting Policy -->
+        <div class="col-12 mt-4">
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+                <div class="bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                    <i class="bi bi-shield-slash-fill fs-2"></i>
+                </div>
+                <h4 class="fw-bold text-dark mb-2">Strict Anti-Broker/Blocker Policy</h4>
+                <p class="text-secondary mx-auto mb-4" style="max-width: 700px;">
+                    House brokers (blockers) are strictly prohibited from posing as landlords, listing properties, or soliciting fees of any kind on Dream House Uganda. Our database is routinely inspected, and suspicious listings will be permanently flagged.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <span class="badge bg-light text-dark border p-2 fw-semibold">Zero Commission</span>
+                    <span class="badge bg-light text-dark border p-2 fw-semibold">Zero Viewing Fees</span>
+                    <span class="badge bg-light text-dark border p-2 fw-semibold">Direct Rental Platform</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

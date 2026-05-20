@@ -1,0 +1,56 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Landlord Login - Housing.ug{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="form-card rounded-4">
+                
+                <!-- Card Header -->
+                <div class="text-center mb-4">
+                    <div class="bg-emerald-light text-success d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-2" style="background-color: var(--primary-light); width: 60px; height: 60px;">
+                        <i class="bi bi-shield-lock-fill fs-2"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark m-0">Landlord Portal</h2>
+                    <p class="text-muted small">Log in to manage your listed rooms</p>
+                </div>
+                
+                <!-- Login Form -->
+                <form method="POST" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label for="id_username" class="form-label">Username</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-person text-muted"></i></span>
+                            <input type="text" name="username" autofocus maxlength="150" class="form-control border-start-0 ps-0" required id="id_username" placeholder="Enter Username">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="id_password" class="form-label">Password</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0"><i class="bi bi-key text-muted"></i></span>
+                            <input type="password" name="password" class="form-control border-start-0 ps-0" required id="id_password" placeholder="Enter Password">
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6">Log In</button>
+                    </div>
+                </form>
+                
+                <hr class="my-4 text-secondary">
+                
+                <div class="text-center">
+                    <p class="text-muted mb-0 small">Don't have a landlord account?</p>
+                    <a href="{% url 'register' %}" class="fw-bold text-success text-decoration-none small">Register as a Landlord / Manager</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

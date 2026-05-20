@@ -1,0 +1,170 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Landlord Dashboard - Housing.ug{% endblock %}
+
+{% block content %}
+<div class="container">
+    
+    <!-- Dashboard Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+        <div>
+            <h1 class="fw-bold text-dark m-0">Landlord Dashboard</h1>
+            <p class="text-muted m-0">Welcome back, <strong class="text-dark">{{ user.first_name }} {{ user.last_name }}</strong>. Manage your rental listings.</p>
+        </div>
+        <div>
+            <a href="{% url 'house_create' %}" class="btn btn-emerald btn-lg d-flex align-items-center gap-2 shadow-sm fs-6 py-2 px-4">
+                <i class="bi bi-plus-lg"></i> Add New House
+            </a>
+        </div>
+    </div>
+
+    <!-- Quick Stats Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-sm-4">
+            <div class="stat-card rounded-4">
+                <div class="stat-icon primary">
+                    <i class="bi bi-houses"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold m-0 text-dark">{{ total_listings }}</h3>
+                    <span class="text-muted small">Total Properties Listed</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card rounded-4">
+                <div class="stat-icon warning">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold m-0 text-dark">{{ available_listings }}</h3>
+                    <span class="text-muted small">Active/Available Online</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-4">
+            <div class="stat-card rounded-4">
+                <div class="stat-icon danger">
+                    <i class="bi bi-bookmark-dash"></i>
+                </div>
+                <div>
+                    <h3 class="fw-bold m-0 text-dark">{{ taken_listings }}</h3>
+                    <span class="text-muted small">Marked as Taken/Rented</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listings Management Table -->
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between">
+            <h5 class="m-0 fw-bold text-dark"><i class="bi bi-list-task text-success me-1"></i> My House Listings</h5>
+            <span class="badge bg-light text-dark border">{{ listings|length }} items</span>
+        </div>
+        
+        <div class="card-body p-0">
+            {% if listings %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="ps-4">Preview</th>
+                                <th scope="col">Title & Type</th>
+                                <th scope="col">Price / month</th>
+                                <th scope="col">Location</th>
+                                <th scope="col">Status</th>
+                                <th scope="col" class="text-end pe-4">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for listing in listings %}
+                                <tr>
+                                    <!-- Image Thumbnail -->
+                                    <td class="ps-4">
+                                        <div class="rounded-3 overflow-hidden border" style="width: 80px; height: 60px;">
+                                            <img src="{{ listing.image_front.url }}" alt="" class="w-100 h-100" style="object-fit: cover;">
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Title & Type -->
+                                    <td>
+                                        <h6 class="fw-bold text-dark mb-0">{{ listing.title }}</h6>
+                                        <span class="text-muted small text-uppercase">{{ listing.get_room_type_display }}</span>
+                                    </td>
+                                    
+                                    <!-- Price -->
+                                    <td>
+                                        <span class="fw-bold text-secondary">{{ listing.price_formatted }}</span>
+                                    </td>
+                                    
+                                    <!-- Location (Make easy to see) -->
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <i class="bi bi-geo-alt-fill text-danger"></i>
+                                            <span class="fw-semibold text-dark">{{ listing.location }}</span>
+                                        </div>
+                                    </td>
+                                    
+                                    <!-- Status -->
+                                    <td>
+                                        {% if listing.is_available %}
+                                            <span class="badge bg-success-subtle text-success px-2.5 py-1.5 rounded-pill fw-semibold">Available</span>
+                                        {% else %}
+                                            <span class="badge bg-danger-subtle text-danger px-2.5 py-1.5 rounded-pill fw-semibold">Taken / Rented</span>
+                                        {% endif %}
+                                    </td>
+                                    
+                                    <!-- Actions -->
+                                    <td class="text-end pe-4">
+                                        <div class="d-flex align-items-center justify-content-end gap-2">
+                                            <!-- Toggle availability -->
+                                            <a href="{% url 'toggle_availability' listing.id %}" class="btn {% if listing.is_available %}btn-outline-danger{% else %}btn-outline-success{% endif %} btn-sm fw-semibold py-1.5" title="{% if listing.is_available %}Mark as Taken (Hide from website){% else %}Mark as Available (Show on website){% endif %}">
+                                                {% if listing.is_available %}
+                                                    <i class="bi bi-eye-slash-fill"></i> Mark Taken
+                                                {% else %}
+                                                    <i class="bi bi-eye-fill"></i> Mark Available
+                                                {% endif %}
+                                            </a>
+                                            
+                                            <!-- Preview -->
+                                            <a href="{% url 'listing_detail' listing.id %}" class="btn btn-outline-secondary btn-sm py-1.5" title="Preview Details">
+                                                <i class="bi bi-info-circle"></i>
+                                            </a>
+                                            
+                                            <!-- Edit -->
+                                            <a href="{% url 'house_update' listing.id %}" class="btn btn-outline-primary btn-sm py-1.5" title="Edit Listing">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            
+                                            <!-- Delete confirmation form -->
+                                            <form method="POST" action="{% url 'house_delete' listing.id %}" onsubmit="return confirm('Are you sure you want to delete listing \'{{ listing.title }}\'? This action cannot be undone.')" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-1.5" title="Delete Listing">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <!-- Dashboard Empty State -->
+                <div class="text-center py-5 px-4">
+                    <i class="bi bi-house-add text-muted display-2 mb-3"></i>
+                    <h5 class="fw-bold text-dark">No Houses Listed Yet</h5>
+                    <p class="text-muted mx-auto mb-4" style="max-width: 350px;">
+                        You haven't added any houses. List your properties to start attracting customers!
+                    </p>
+                    <a href="{% url 'house_create' %}" class="btn btn-emerald px-4">
+                        <i class="bi bi-plus-lg"></i> Add Your First House
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

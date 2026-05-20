@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dream House Uganda - Find Your Ideal Room{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Browse available single rooms, double rooms, and self-contained properties. Contact landlords directly via WhatsApp or Phone Call. Find your next house in Uganda instantly.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5 CSS & Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link href="{% static 'listings/css/style.css' %}" rel="stylesheet">
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Glassmorphic Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}" id="navbar-brand-logo">
+                <i class="bi bi-house-heart-fill text-success me-2 fs-3"></i>
+                <span class="navbar-brand-text">Dream House Uganda</span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation" id="navbar-toggle-btn">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-dark" href="{% url 'home' %}">Find Rooms</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-dark" href="{% url 'about' %}">About Us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-dark" href="{% url 'policy' %}">Guidelines</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-semibold text-dark" href="{% url 'contact' %}">Contact Us</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-2">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-outline-custom d-flex align-items-center gap-1">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                        <a href="{% url 'logout' %}" class="btn btn-secondary d-flex align-items-center gap-1">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-custom">Landlord Login</a>
+                        <a href="{% url 'register' %}" class="btn btn-emerald">List Your House</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Alert Messages -->
+    <div class="container mt-3">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm rounded-3" role="alert">
+                    <div class="d-flex align-items-center gap-2">
+                        {% if message.tags == 'success' %}
+                            <i class="bi bi-check-circle-fill fs-5"></i>
+                        {% elif message.tags == 'error' %}
+                            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                        {% else %}
+                            <i class="bi bi-info-circle-fill fs-5"></i>
+                        {% endif %}
+                        <div>{{ message }}</div>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow-1 py-4">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-light py-5 mt-5 border-top border-secondary">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-5">
+                    <h5 class="fw-bold mb-3 d-flex align-items-center text-white">
+                        <i class="bi bi-house-heart-fill text-success me-2"></i> Dream House Uganda
+                    </h5>
+                    <p class="text-secondary small" style="max-width: 400px; line-height: 1.6;">
+                        Helping Ugandan citizens acquire their dream homes at convenient prices and desirable locations, completely free of broker manipulation and commission fees.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="fw-bold text-uppercase text-secondary mb-3 small">Explore</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'home' %}?room_type=single" class="text-secondary text-decoration-none small hover-link">Single Rooms</a></li>
+                        <li><a href="{% url 'home' %}?room_type=double" class="text-secondary text-decoration-none small hover-link">Double Rooms</a></li>
+                        <li><a href="{% url 'home' %}?room_type=self_contained" class="text-secondary text-decoration-none small hover-link">Self-Contained</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2">
+                    <h6 class="fw-bold text-uppercase text-secondary mb-3 small">Company</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'about' %}" class="text-secondary text-decoration-none small hover-link">About Us</a></li>
+                        <li><a href="{% url 'policy' %}" class="text-secondary text-decoration-none small hover-link">Policy Guidelines</a></li>
+                        <li><a href="{% url 'contact' %}" class="text-secondary text-decoration-none small hover-link">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="fw-bold text-uppercase text-secondary mb-3 small">For Landlords</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'register' %}" class="text-secondary text-decoration-none small hover-link">Create Account</a></li>
+                        <li><a href="{% url 'login' %}" class="text-secondary text-decoration-none small hover-link">Landlord Portal</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="border-secondary my-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3">
+                <p class="text-secondary small mb-0">&copy; 2026 Dream House Uganda. All rights reserved.</p>
+                <div class="d-flex gap-3">
+                    <a href="https://wa.me/256752595515" class="text-secondary hover-link" target="_blank"><i class="bi bi-whatsapp"></i></a>
+                    <a href="tel:0752595515" class="text-secondary hover-link"><i class="bi bi-telephone"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JavaScript Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Global Helper Scripts -->
+    <script>
+        // Image preview before upload helper
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            const placeholder = preview.nextElementSibling || preview.previousElementSibling;
+            
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    if (placeholder && placeholder.classList.contains('image-preview-placeholder')) {
+                        placeholder.style.display = 'none';
+                    }
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
