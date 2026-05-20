@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils.crypto import get_random_string
 import urllib.parse
 
 class Listing(models.Model):
@@ -55,4 +58,32 @@ class Listing(models.Model):
         message = f"Hello! I saw your listing on Dream House Uganda for a {self.get_room_type_display()} in {self.location} (UGX {self.price_per_month:,}/month). Is it still available?"
         encoded_message = urllib.parse.quote(message)
         return f"https://wa.me/{clean_phone}?text={encoded_message}"
+
+
+class LandlordProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='landlord_profile')
+    national_id_front = models.ImageField(upload_to='listings/national_ids/', help_text="Upload the front of your national ID")
+    national_id_back = models.ImageField(upload_to='listings/national_ids/', help_text="Upload the back of your national ID")
+    is_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=20, blank=True)
+    verification_requested_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = 'Landlord Profile'
+        verbose_name_plural = 'Landlord Profiles'
+
+    def __str__(self):
+        return f"{self.user.username} landlord profile"
+
+    def generate_verification_code(self):
+        self.verification_code = get_random_string(8).upper()
+        self.save(update_fields=['verification_code'])
+        return self.verification_code
+
+
+@receiver(post_save, sender=User)
+def create_landlord_profile(sender, instance, created, **kwargs):
+    if created:
+        LandlordProfile.objects.create(user=instance)
 
