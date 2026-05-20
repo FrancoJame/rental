@@ -22,4 +22,8 @@ urlpatterns = [
     path('house/<int:pk>/edit/', views.house_update, name='house_update'),
     path('house/<int:pk>/delete/', views.house_delete, name='house_delete'),
     path('house/<int:pk>/toggle/', views.toggle_availability, name='toggle_availability'),
+    
+    # Messaging
+    path('house/<int:pk>/send-message/', views.send_message, name='send_message'),
+    path('messages/', views.landlord_messages, name='landlord_messages'),
 ]

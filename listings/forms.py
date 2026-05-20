@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Listing
+from .models import Listing, Message
 
 class LandlordRegisterForm(forms.ModelForm):
     username = forms.CharField(
@@ -76,4 +76,33 @@ class ListingForm(forms.ModelForm):
             'in_gate': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'inner_bathroom': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
+class MessageForm(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['sender_name', 'sender_email', 'sender_phone', 'message_text']
+        widgets = {
+            'sender_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your full name',
+                'required': True
+            }),
+            'sender_email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your email address',
+                'required': True
+            }),
+            'sender_phone': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Your phone number (e.g. +256789000000)',
+                'required': True
+            }),
+            'message_text': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Write your message to the landlord...',
+                'required': True
+            }),
         }

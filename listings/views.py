@@ -4,8 +4,8 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Max
-from .models import Listing
-from .forms import LandlordRegisterForm, ListingForm
+from .models import Listing, Message
+from .forms import LandlordRegisterForm, ListingForm, MessageForm
 
 # 1. Public home page with filters
 def home_page(request):
@@ -205,4 +205,47 @@ def contact_page(request):
 # 13. Policy Guidelines Page
 def policy_page(request):
     return render(request, 'listings/policy.html')
+
+
+# 14. Send Message to Landlord
+def send_message(request, pk):
+    listing = get_object_or_404(Listing, pk=pk)
+    
+    if request.method == 'POST':
+        form = MessageForm(request.POST)
+        if form.is_valid():
+            message_obj = form.save(commit=False)
+            message_obj.listing = listing
+            message_obj.save()
+            messages.success(request, "Your message has been sent to the landlord successfully!")
+            return redirect('listing_detail', pk=pk)
+        else:
+            messages.error(request, "Please fill in all required fields correctly.")
+    else:
+        form = MessageForm()
+    
+    context = {
+        'form': form,
+        'listing': listing
+    }
+    return render(request, 'listings/send_message.html', context)
+
+
+# 15. Landlord Messages
+@login_required
+def landlord_messages(request):
+    # Get all messages for listings belonging to this landlord
+    landlord_messages = Message.objects.filter(listing__landlord=request.user).select_related('listing')
+    
+    # Count unread messages
+    unread_count = landlord_messages.filter(is_read=False).count()
+    
+    # Mark all messages as read
+    landlord_messages.filter(is_read=False).update(is_read=True)
+    
+    context = {
+        'messages': landlord_messages,
+        'unread_count': unread_count
+    }
+    return render(request, 'listings/landlord_messages.html', context)
 

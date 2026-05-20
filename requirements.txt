@@ -1,6 +1,30 @@
+# Core Django Framework
 Django==6.0.4
+
+# Image Processing
 Pillow==10.1.0
+
+# Environment Variables Management
 python-decouple==3.8
+
+# Production WSGI Server
 gunicorn==21.2.0
+
+# Efficient Static File Serving
 whitenoise==6.6.0
+
+# PostgreSQL Database Adapter (for production)
 psycopg2-binary==2.9.9
+
+# Optional: For AWS S3 storage
+# boto3==1.26.0
+# django-storages==1.14.0
+
+# Optional: For error tracking
+# sentry-sdk==1.14.0
+
+# Optional: For API development
+# djangorestframework==3.14.0
+
+# Optional: For CORS handling
+# django-cors-headers==4.0.0

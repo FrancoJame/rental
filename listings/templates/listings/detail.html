@@ -154,6 +154,9 @@
                     <a href="{{ listing.whatsapp_url }}" target="_blank" class="btn btn-whatsapp btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                         <i class="bi bi-whatsapp"></i> Chat on WhatsApp
                     </a>
+                    <a href="{% url 'send_message' listing.pk %}" class="btn btn-outline-primary btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
+                        <i class="bi bi-envelope-fill"></i> Send Message
+                    </a>
                 </div>
                 
                 <hr class="my-4 text-secondary">

@@ -134,6 +134,9 @@ LOGIN_URL = 'login'
 # Security settings for production
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
@@ -143,4 +146,9 @@ if not DEBUG:
         "style-src": ("'self'", "'unsafe-inline'"),
         "img-src": ("'self'", "data:", "https:"),
     }
+else:
+    # Development settings
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 

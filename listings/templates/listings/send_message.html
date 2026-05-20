@@ -1,0 +1,126 @@
+{% extends 'listings/base.html' %}
+
+{% block content %}
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Back Link -->
+            <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-outline-secondary btn-sm mb-4">
+                <i class="fas fa-arrow-left"></i> Back to Listing
+            </a>
+
+            <!-- Message Form Card -->
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-envelope"></i> Send Message to Landlord
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Listing Info -->
+                    <div class="alert alert-light border mb-4">
+                        <h6 class="mb-2 text-primary">Regarding Property:</h6>
+                        <p class="mb-0">
+                            <strong>{{ listing.title }}</strong><br>
+                            <small class="text-muted">{{ listing.get_room_type_display }} - UGX {{ listing.price_per_month|floatformat:0|add:"0"|stringformat:",d" }}/month</small>
+                        </p>
+                    </div>
+
+                    <!-- Message Form -->
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Name Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.sender_name.id_for_label }}" class="form-label">
+                                <strong>Your Full Name</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.sender_name }}
+                            {% if form.sender_name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sender_name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Email Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.sender_email.id_for_label }}" class="form-label">
+                                <strong>Your Email Address</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.sender_email }}
+                            {% if form.sender_email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sender_email.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Phone Field -->
+                        <div class="mb-3">
+                            <label for="{{ form.sender_phone.id_for_label }}" class="form-label">
+                                <strong>Your Phone Number</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.sender_phone }}
+                            {% if form.sender_phone.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.sender_phone.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Message Field -->
+                        <div class="mb-4">
+                            <label for="{{ form.message_text.id_for_label }}" class="form-label">
+                                <strong>Your Message</strong>
+                                <span class="text-danger">*</span>
+                            </label>
+                            {{ form.message_text }}
+                            <small class="form-text text-muted d-block mt-2">
+                                <i class="fas fa-lightbulb"></i> Tip: Be specific about your inquiry and the best time to reach you.
+                            </small>
+                            {% if form.message_text.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.message_text.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send Message
+                            </button>
+                            <a href="{% url 'listing_detail' listing.pk %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- Alternative Contact Methods -->
+                    <hr class="my-4">
+                    <div class="alert alert-info" role="alert">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-phone"></i> Direct Contact Methods
+                        </h6>
+                        <p class="mb-2">
+                            You can also reach the landlord directly:
+                        </p>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <a href="tel:{{ listing.telephone }}" class="btn btn-sm btn-success">
+                                <i class="fas fa-phone"></i> Call
+                            </a>
+                            <a href="{{ listing.whatsapp_url }}" target="_blank" class="btn btn-sm btn-info">
+                                <i class="fab fa-whatsapp"></i> WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

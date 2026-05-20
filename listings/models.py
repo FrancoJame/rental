@@ -82,6 +82,22 @@ class LandlordProfile(models.Model):
         return self.verification_code
 
 
+class Message(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='messages')
+    sender_name = models.CharField(max_length=100, help_text="Your full name")
+    sender_email = models.EmailField(help_text="Your email address")
+    sender_phone = models.CharField(max_length=20, help_text="Your phone number")
+    message_text = models.TextField(help_text="Your message to the landlord")
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"Message from {self.sender_name} about {self.listing.title}"
+
+
 @receiver(post_save, sender=User)
 def create_landlord_profile(sender, instance, created, **kwargs):
     if created:
