@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 from decouple import config, Csv
 import dj_database_url
@@ -73,18 +74,29 @@ TEMPLATES = [
 WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-DATABASES = {
-    'default': dj_database_url.config(
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        ssl_require=not DEBUG 
-    )
-}
+# Database Configuration
+# Detects whether the app is running on Vercel's cloud production infrastructure
+IS_VERCEL = 'VERCEL' in os.environ
 
-# --- FIX FOR VERCEL READ-ONLY ENVIRONMENT ---
-# Bypasses the write-to-disk issue by storing authentication states in server memory.
+if IS_VERCEL:
+    # On Vercel, use a writable in-memory database to prevent all read-only file system errors
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+else:
+    # On your local computer, use your persistent local db.sqlite3 file
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
+            conn_max_age=600,
+            ssl_require=not DEBUG 
+        )
+    }
+
+# Route session storage to cache engine to complement memory writes
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 
