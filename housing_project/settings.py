@@ -83,8 +83,8 @@ DATABASES = {
     )
 }
 
-# --- VERCEL READ-ONLY BYPASS ---
-# This forces Django to write login sessions to memory instead of writing to the SQLite file
+# --- FIX FOR VERCEL READ-ONLY ENVIRONMENT ---
+# Bypasses the write-to-disk issue by storing authentication states in server memory.
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 
