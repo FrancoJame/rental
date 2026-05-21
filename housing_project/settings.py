@@ -75,15 +75,17 @@ WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-# Dynamically configures the database using DATABASE_URL environment variable on production, 
-# and defaults back to SQLite during local development.
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600,
-        ssl_require=not DEBUG # Ensures production database connections are encrypted over SSL
+        ssl_require=not DEBUG 
     )
 }
+
+# --- VERCEL READ-ONLY BYPASS ---
+# This forces Django to write login sessions to memory instead of writing to the SQLite file
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 
 # Password validation
