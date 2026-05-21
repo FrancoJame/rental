@@ -75,11 +75,8 @@ WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
 # Database Configuration
-# Detects whether the app is running on Vercel's cloud production infrastructure
-IS_VERCEL = 'VERCEL' in os.environ
-
-if IS_VERCEL:
-    # On Vercel, use a writable in-memory database to prevent all read-only file system errors
+# Fallback structure safe for both Vercel build execution and live engine execution
+if os.environ.get('VERCEL') == '1' or 'VERCEL' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -87,7 +84,6 @@ if IS_VERCEL:
         }
     }
 else:
-    # On your local computer, use your persistent local db.sqlite3 file
     DATABASES = {
         'default': dj_database_url.config(
             default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
