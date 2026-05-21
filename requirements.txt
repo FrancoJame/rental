@@ -28,3 +28,6 @@ psycopg2-binary==2.9.9
 
 # Optional: For CORS handling
 # django-cors-headers==4.0.0
+
+# Database URL parsing
+dj_database_url==2.1.0
