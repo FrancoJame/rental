@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 from pathlib import Path
 from decouple import config, Csv
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -75,7 +74,7 @@ WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
 # Database Configuration
-# Fallback structure safe for both Vercel build execution and live engine execution
+# Automatically switches to a secure in-memory engine when pushed to Vercel production
 if os.environ.get('VERCEL') == '1' or 'VERCEL' in os.environ:
     DATABASES = {
         'default': {
@@ -85,11 +84,10 @@ if os.environ.get('VERCEL') == '1' or 'VERCEL' in os.environ:
     }
 else:
     DATABASES = {
-        'default': dj_database_url.config(
-            default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-            conn_max_age=600,
-            ssl_require=not DEBUG 
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 # Route session storage to cache engine to complement memory writes
