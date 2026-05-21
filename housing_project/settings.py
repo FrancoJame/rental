@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+import dj_database_url  # Added for production PostgreSQL
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -28,7 +29,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-yi#wzwry7e$=xr6#6)ruf
 DEBUG = config('DEBUG', default=True, cast=bool)
 
 # CORRECTED LINE:
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,rental-murex-iota.vercel.app,.vercel.app', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,rental-murex-iota.vercel.app,.vercel.app,dreamhouse-ug.vercel.app', cast=Csv())
 
 # Application definition
 
@@ -73,14 +74,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
-# Database Configuration
-# Automatically switches to a secure in-memory engine when pushed to Vercel production
-if os.environ.get('VERCEL') == '1' or 'VERCEL' in os.environ:
+# Database Configuration - FIXED FOR PRODUCTION POSTGRESQL
+# Automatically uses your Neon database on Vercel, falls back to SQLite locally
+if os.environ.get('DATABASE_URL'):
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': ':memory:',
-        }
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
 else:
     DATABASES = {
