@@ -26,8 +26,8 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-yi#wzwry7e$=xr6#6)ruf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=Csv())
-
+# CORRECTED LINE:
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,rental-murex-iota.vercel.app,.vercel.app', cast=Csv())
 
 # Application definition
 
