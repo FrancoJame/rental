@@ -2,15 +2,16 @@ import os
 import sys
 from pathlib import Path
 
-# Ensure project root is on the path
+# Ensure the project root is on the Python path for Vercel.
 ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(ROOT_DIR))
+sys.path.insert(0, str(ROOT_DIR))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'housing_project.settings')
 
 import django
-django.setup()
-
 from django.core.wsgi import get_wsgi_application
 
+django.setup()
+
 application = get_wsgi_application()
+app = application
