@@ -6,13 +6,21 @@ from django.contrib import messages
 from django.db.models import Max
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import Listing, Message, LandlordProfile, EmailVerification
+from .models import Listing, Message, LandlordProfile, EmailVerification, User
 from .forms import LandlordRegisterForm, ListingForm, MessageForm
 
 """
 View functions for the listings app.
 Handles all business logic for displaying listings, details, messaging, registration, etc.
 """
+
+
+def get_landlord_profile(user):
+    """Return the landlord profile for a user, creating one if the user is a landlord and missing the profile."""
+    if user.role != User.LANDLORD:
+        return None
+    profile, _ = LandlordProfile.objects.get_or_create(user=user)
+    return profile
 
 # 1. Public home page with filters
 def home_page(request):
@@ -258,8 +266,12 @@ def landlord_logout(request):
 # 6. Landlord Dashboard
 @login_required
 def landlord_dashboard(request):
-    # Check if user's email is verified
-    email_verified = request.user.landlord_profile.email_verified
+    profile = get_landlord_profile(request.user)
+    if profile is None:
+        messages.error(request, "Only landlords can access the dashboard. Please register as a landlord or return to the homepage.")
+        return redirect('home')
+
+    email_verified = profile.email_verified
     
     if not email_verified:
         messages.warning(request, "Please verify your email to add listings. Check your email for the verification code.")
