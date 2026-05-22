@@ -98,7 +98,7 @@ class Listing(models.Model):
         
         # Validate telephone
         if self.telephone and not self._validate_phone_number(self.telephone):
-            errors['telephone'] = "Invalid phone number format. Use +2567... or 07..."
+            errors['telephone'] = "Invalid phone number format. Use +2567... or 07... or 771234567."
         
         # Validate length strings
         if self.title and len(self.title.strip()) < 10:
@@ -122,7 +122,11 @@ class Listing(models.Model):
     @staticmethod
     def _validate_phone_number(phone):
         digits = re.sub(r'\D', '', phone)
-        return (len(digits) == 12 and digits.startswith('256')) or (len(digits) == 10 and digits.startswith('07'))
+        return (
+            (len(digits) == 12 and digits.startswith('256')) or
+            (len(digits) == 10 and digits.startswith('07')) or
+            (len(digits) == 9 and digits.startswith('7'))
+        )
 
     @property
     def price_formatted(self):

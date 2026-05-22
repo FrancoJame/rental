@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import login, logout, authenticate, get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -170,7 +170,7 @@ def verify_email(request, user_id):
     """
     Email verification page where user enters the 6-digit code.
     """
-    from django.contrib.auth.models import User as UserModel
+    UserModel = get_user_model()
     
     try:
         user = UserModel.objects.get(id=user_id)

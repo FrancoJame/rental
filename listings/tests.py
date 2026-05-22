@@ -1,8 +1,10 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from .models import Listing
+
+User = get_user_model()
 
 class ListingModelTests(TestCase):
     def setUp(self):
@@ -12,7 +14,8 @@ class ListingModelTests(TestCase):
             password='testpassword123',
             first_name='John',
             last_name='Doe',
-            email='john@example.com'
+            email='john@example.com',
+            role='landlord'
         )
         
         # Mock simple images
@@ -72,7 +75,8 @@ class ListingViewsTests(TestCase):
             username='testlandlord',
             password='testpassword123',
             first_name='John',
-            last_name='Doe'
+            last_name='Doe',
+            role='landlord'
         )
         self.mock_image = SimpleUploadedFile(
             name='test_image.jpg',
@@ -91,6 +95,7 @@ class ListingViewsTests(TestCase):
             image_front=self.mock_image,
             image_inside=self.mock_image,
             image_other=self.mock_image,
+            description='Cozy single room with secure gate access and nearby market.',
             is_available=True
         )
         self.listing2 = Listing.objects.create(
@@ -103,6 +108,7 @@ class ListingViewsTests(TestCase):
             image_front=self.mock_image,
             image_inside=self.mock_image,
             image_other=self.mock_image,
+            description='Modern self-contained unit in central Wandegeya, ideal for couples.',
             is_available=True
         )
         self.listing3 = Listing.objects.create(
@@ -115,6 +121,7 @@ class ListingViewsTests(TestCase):
             image_front=self.mock_image,
             image_inside=self.mock_image,
             image_other=self.mock_image,
+            description='Spacious double room currently taken but shown for search filtering tests.',
             is_available=False  # Taken/Rented out
         )
 
