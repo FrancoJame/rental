@@ -6,6 +6,9 @@ from django.utils.crypto import get_random_string
 import urllib.parse
 
 class Listing(models.Model):
+    """
+    Represents a rental house listing posted by a landlord.
+    """
     ROOM_TYPES = [
         ('single', 'Single Room'),
         ('double', 'Double Room'),
@@ -61,6 +64,9 @@ class Listing(models.Model):
 
 
 class LandlordProfile(models.Model):
+    """
+    Stores additional information and verification for landlord users.
+    """
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='landlord_profile')
     national_id_front = models.ImageField(upload_to='listings/national_ids/', help_text="Upload the front of your national ID")
     national_id_back = models.ImageField(upload_to='listings/national_ids/', help_text="Upload the back of your national ID")
@@ -83,6 +89,9 @@ class LandlordProfile(models.Model):
 
 
 class Message(models.Model):
+    """
+    Stores messages sent by customers to landlords about a specific listing.
+    """
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='messages')
     sender_name = models.CharField(max_length=100, help_text="Your full name")
     sender_email = models.EmailField(help_text="Your email address")

@@ -61,6 +61,11 @@
                 <!-- Room type & Posted time -->
                 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
                     <span class="badge bg-secondary px-3 py-2 text-uppercase fw-semibold" style="font-size: 0.75rem;">{{ listing.get_room_type_display }}</span>
+                    {% if listing.is_available %}
+                        <span class="badge bg-success px-3 py-2 text-uppercase fw-semibold" style="font-size: 0.75rem;">Available</span>
+                    {% else %}
+                        <span class="badge bg-danger px-3 py-2 text-uppercase fw-semibold" style="font-size: 0.75rem;">Not Available</span>
+                    {% endif %}
                     <div class="text-muted small d-flex align-items-center gap-1">
                         <i class="bi bi-clock-history"></i> Posted {{ listing.created_at|timesince }} ago ({{ listing.created_at|date:"F d, Y h:i A" }})
                     </div>

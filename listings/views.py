@@ -7,6 +7,11 @@ from django.db.models import Max
 from .models import Listing, Message
 from .forms import LandlordRegisterForm, ListingForm, MessageForm
 
+"""
+View functions for the listings app.
+Handles all business logic for displaying listings, details, messaging, registration, etc.
+"""
+
 # 1. Public home page with filters
 def home_page(request):
     # Retrieve all available listings
@@ -51,6 +56,9 @@ def home_page(request):
 
 # 2. Detailed listing view
 def listing_detail(request, pk):
+    """
+    Show details for a single house listing.
+    """
     # Landlord can view their own listing even if marked as taken (is_available=False)
     listing = get_object_or_404(Listing, pk=pk)
     if not listing.is_available and (not request.user.is_authenticated or listing.landlord != request.user):
@@ -209,6 +217,9 @@ def policy_page(request):
 
 # 14. Send Message to Landlord
 def send_message(request, pk):
+    """
+    Handle sending a message from a customer to a landlord for a specific listing.
+    """
     listing = get_object_or_404(Listing, pk=pk)
     
     if request.method == 'POST':

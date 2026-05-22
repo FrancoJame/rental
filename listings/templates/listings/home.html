@@ -59,11 +59,7 @@
                         
                         <div class="mb-3">
                             <label class="form-label small text-uppercase fw-bold text-secondary">Max Budget (UGX)</label>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span class="text-muted small">0 UGX</span>
-                                <span class="text-success fw-bold small" id="mobilePriceVal">{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}</span>
-                            </div>
-                            <input type="range" class="form-range" name="price_max" min="0" max="{{ max_price_limit }}" step="50000" value="{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}" oninput="document.getElementById('mobilePriceVal').innerText = Number(this.value).toLocaleString() + ' UGX'">
+                            <input type="number" class="form-control" name="price_max" placeholder="Enter your max budget (optional)" value="{% if selected_price_max %}{{ selected_price_max }}{% endif %}">
                         </div>
                         
                         <div class="d-grid gap-2">
@@ -105,11 +101,7 @@
                     
                     <div class="mb-4">
                         <label class="form-label small text-uppercase fw-bold text-secondary">Max Budget (UGX)</label>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span class="text-muted small">0 UGX</span>
-                            <span class="text-success fw-bold small" id="desktopPriceVal">{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}</span>
-                        </div>
-                        <input type="range" class="form-range" name="price_max" min="0" max="{{ max_price_limit }}" step="50000" value="{% if selected_price_max %}{{ selected_price_max }}{% else %}{{ max_price_limit }}{% endif %}" oninput="document.getElementById('desktopPriceVal').innerText = Number(this.value).toLocaleString() + ' UGX'">
+                        <input type="number" class="form-control" name="price_max" placeholder="Enter your max budget (optional)" value="{% if selected_price_max %}{{ selected_price_max }}{% endif %}">
                     </div>
                     
                     <div class="d-grid gap-2">

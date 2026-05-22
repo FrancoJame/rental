@@ -3,6 +3,9 @@ from django.contrib.auth.models import User
 from .models import Listing, Message
 
 class LandlordRegisterForm(forms.ModelForm):
+    """
+    Form for landlord registration, including validation for email and password.
+    """
     username = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choose Username'}),
         help_text=""
@@ -56,6 +59,9 @@ class LandlordRegisterForm(forms.ModelForm):
 
 
 class ListingForm(forms.ModelForm):
+    """
+    Form for creating or editing a house listing.
+    """
     class Meta:
         model = Listing
         fields = [
@@ -80,6 +86,9 @@ class ListingForm(forms.ModelForm):
 
 
 class MessageForm(forms.ModelForm):
+    """
+    Form for sending a message to a landlord about a listing.
+    """
     class Meta:
         model = Message
         fields = ['sender_name', 'sender_email', 'sender_phone', 'offered_price', 'message_text']
