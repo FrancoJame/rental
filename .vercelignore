@@ -1,5 +1,4 @@
-# Ignore local Docker deployment files and unnecessary build artifacts
-Dockerfile
+# Ignore unnecessary build artifacts and deployment files
 
 # Ignore files that should not be deployed to Vercel
 db.sqlite3

@@ -109,7 +109,7 @@ heroku run python manage.py createsuperuser
 9. Configure SSL with Let's Encrypt
 
 ### AWS / Azure / Google Cloud
-Follow their respective deployment guides with Gunicorn + Docker
+Follow their respective deployment guides with Gunicorn and a standard Python deployment workflow
 
 ## ⚠️ Security Reminders
 

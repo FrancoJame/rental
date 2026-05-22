@@ -87,25 +87,6 @@ python manage.py collectstatic --noinput
 
 4. **Configure Nginx** to proxy requests to Gunicorn
 
-#### Using Docker
-
-Create a `Dockerfile`:
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-COPY . .
-RUN python manage.py collectstatic --noinput
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "housing_project.wsgi"]
-```
-
-Build and run:
-```bash
-docker build -t housing:latest .
-docker run -p 8000:8000 housing:latest
-```
-
 ## Post-Deployment
 
 1. **Verify static files** are being served correctly
