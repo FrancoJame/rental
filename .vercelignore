@@ -1,0 +1,9 @@
+# Ignore local Docker deployment files and unnecessary build artifacts
+Dockerfile
+
+# Ignore files that should not be deployed to Vercel
+db.sqlite3
+staticfiles/
+media/
+.env
+*.log
