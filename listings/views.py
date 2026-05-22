@@ -212,7 +212,11 @@ def send_message(request, pk):
     listing = get_object_or_404(Listing, pk=pk)
     
     if request.method == 'POST':
-        form = MessageForm(request.POST)
+        data = request.POST.copy()
+        # If offered_price is empty, set it to the listing price
+        if not data.get('offered_price'):
+            data['offered_price'] = listing.price_per_month
+        form = MessageForm(data)
         if form.is_valid():
             message_obj = form.save(commit=False)
             message_obj.listing = listing
@@ -222,8 +226,8 @@ def send_message(request, pk):
         else:
             messages.error(request, "Please fill in all required fields correctly.")
     else:
-        form = MessageForm()
-    
+        # Prefill offered_price with the listing price
+        form = MessageForm(initial={'offered_price': listing.price_per_month})
     context = {
         'form': form,
         'listing': listing

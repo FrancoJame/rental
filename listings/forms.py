@@ -82,7 +82,7 @@ class ListingForm(forms.ModelForm):
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
-        fields = ['sender_name', 'sender_email', 'sender_phone', 'message_text']
+        fields = ['sender_name', 'sender_email', 'sender_phone', 'offered_price', 'message_text']
         widgets = {
             'sender_name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -98,6 +98,10 @@ class MessageForm(forms.ModelForm):
                 'class': 'form-control',
                 'placeholder': 'Your phone number (e.g. +256789000000)',
                 'required': True
+            }),
+            'offered_price': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Price you are willing to pay (optional)'
             }),
             'message_text': forms.Textarea(attrs={
                 'class': 'form-control',

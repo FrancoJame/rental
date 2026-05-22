@@ -147,16 +147,47 @@
                 </div>
 
                 <h5 class="fw-bold mb-3">Contact Immediately</h5>
-                <div class="d-grid gap-2">
+                <div class="d-grid gap-2 mb-4">
                     <a href="tel:{{ listing.telephone }}" class="btn btn-emerald btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                         <i class="bi bi-telephone"></i> Call Landlord
                     </a>
                     <a href="{{ listing.whatsapp_url }}" target="_blank" class="btn btn-whatsapp btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
                         <i class="bi bi-whatsapp"></i> Chat on WhatsApp
                     </a>
-                    <a href="{% url 'send_message' listing.pk %}" class="btn btn-outline-primary btn-lg py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm">
-                        <i class="bi bi-envelope-fill"></i> Send Message
-                    </a>
+                </div>
+
+                <!-- Inline Message Box -->
+                <div class="card border-0 shadow-sm mb-3">
+                    <div class="card-header bg-primary text-white py-2">
+                        <strong>Send Message to Landlord</strong>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'send_message' listing.pk %}" class="needs-validation" novalidate>
+                            {% csrf_token %}
+                            <div class="mb-2">
+                                <label for="id_sender_name" class="form-label">Your Name <span class="text-danger">*</span></label>
+                                <input type="text" name="sender_name" class="form-control" id="id_sender_name" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="id_sender_email" class="form-label">Your Email <span class="text-danger">*</span></label>
+                                <input type="email" name="sender_email" class="form-control" id="id_sender_email" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="id_sender_phone" class="form-label">Your Phone <span class="text-danger">*</span></label>
+                                <input type="text" name="sender_phone" class="form-control" id="id_sender_phone" required>
+                            </div>
+                            <div class="mb-2">
+                                <label for="id_offered_price" class="form-label">Price (UGX)</label>
+                                <input type="number" name="offered_price" class="form-control" id="id_offered_price" value="{{ listing.price_per_month }}">
+                                <div class="form-text">Defaults to house price. Change if you want to offer a different price.</div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="id_message_text" class="form-label">Message <span class="text-danger">*</span></label>
+                                <textarea name="message_text" class="form-control" id="id_message_text" rows="3" required placeholder="Write your message to the landlord..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100 mt-2">Send Message</button>
+                        </form>
+                    </div>
                 </div>
                 
                 <hr class="my-4 text-secondary">

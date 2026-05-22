@@ -87,6 +87,7 @@ class Message(models.Model):
     sender_name = models.CharField(max_length=100, help_text="Your full name")
     sender_email = models.EmailField(help_text="Your email address")
     sender_phone = models.CharField(max_length=20, help_text="Your phone number")
+    offered_price = models.PositiveIntegerField(null=True, blank=True, help_text="Price customer is willing to pay (optional)")
     message_text = models.TextField(help_text="Your message to the landlord")
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
