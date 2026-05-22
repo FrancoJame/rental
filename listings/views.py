@@ -244,6 +244,11 @@ def landlord_login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
+                if user.role == User.MANAGER:
+                    login(request, user)
+                    messages.success(request, f"Welcome back, {user.first_name or user.username}! You are logged in as General Manager.")
+                    return redirect('/admin/')
+
                 profile = get_landlord_profile(user)
                 if profile and not profile.email_verified:
                     messages.warning(request, "Your account is not verified yet. Please enter the 6-digit code sent to your email.")
