@@ -43,11 +43,11 @@ class LandlordRegisterForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirm Password'})
     )
     national_id_number = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your National ID Number (NIN)'}),
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': '13-digit National ID Number (NIN)'}),
         required=True,
-        help_text="Your unique National ID Number",
-        min_length=5,
-        max_length=20
+        help_text="Your unique 13-character National ID Number",
+        min_length=13,
+        max_length=13
     )
 
     class Meta:
@@ -79,6 +79,8 @@ class LandlordRegisterForm(forms.ModelForm):
     
     def clean_national_id_number(self):
         national_id = self.cleaned_data.get('national_id_number')
+        if national_id and len(national_id) != 13:
+            raise ValidationError("National ID must be exactly 13 characters long.")
         if LandlordProfile.objects.filter(national_id_number=national_id).exists():
             raise ValidationError("This National ID number is already registered.")
         return national_id

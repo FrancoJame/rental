@@ -152,7 +152,7 @@ class Listing(models.Model):
 # ==========================================
 class LandlordProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='landlord_profile')
-    national_id_number = models.CharField(max_length=20, blank=True, unique=True, null=True, help_text="National ID Number (NIN)")
+    national_id_number = models.CharField(max_length=13, blank=True, unique=True, null=True, help_text="National ID Number (NIN), exactly 13 characters")
     national_id_front = models.ImageField(upload_to='listings/national_ids/', blank=True, help_text="Upload the front of your national ID")
     national_id_back = models.ImageField(upload_to='listings/national_ids/', blank=True, help_text="Upload the back of your national ID")
     is_verified = models.BooleanField(default=False)
