@@ -97,7 +97,7 @@ def landlord_register(request):
             # Save the NIN to the landlord profile
             national_id = form.cleaned_data.get('national_id_number')
             if national_id:
-                landlord_profile = LandlordProfile.objects.get(user=user)
+                landlord_profile, _ = LandlordProfile.objects.get_or_create(user=user)
                 landlord_profile.national_id_number = national_id
                 landlord_profile.save()
             
@@ -188,6 +188,10 @@ def verify_email(request, user_id):
     
     # Check if user is already verified
     if user.email_verification.is_verified:
+        landlord_profile = get_landlord_profile(user)
+        if landlord_profile is None:
+            messages.error(request, "Only landlords may verify email for dashboard access.")
+            return redirect('home')
         login(request, user)
         messages.success(request, f"Welcome, {user.first_name}! Your email is already verified.")
         return redirect('dashboard')
@@ -215,8 +219,12 @@ def verify_email(request, user_id):
                 email_verification.save()
                 
                 # Mark landlord profile as verified
-                user.landlord_profile.email_verified = True
-                user.landlord_profile.save()
+                landlord_profile = get_landlord_profile(user)
+                if landlord_profile is None:
+                    messages.error(request, "Unable to complete verification. Please contact support.")
+                    return redirect('register')
+                landlord_profile.email_verified = True
+                landlord_profile.save()
                 
                 # Log the user in
                 login(request, user)
@@ -296,8 +304,13 @@ def landlord_dashboard(request):
 # 7. Add listing
 @login_required
 def house_create(request):
+    profile = get_landlord_profile(request.user)
+    if profile is None:
+        messages.error(request, "Only landlords can add listings.")
+        return redirect('home')
+
     # Check if email is verified
-    if not request.user.landlord_profile.email_verified:
+    if not profile.email_verified:
         messages.error(request, "Please verify your email before adding listings. Check your email inbox for the verification code.")
         return redirect('dashboard')
     
