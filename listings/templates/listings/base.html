@@ -165,6 +165,31 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
+
+        // Show/hide password toggle for login and registration forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordToggles = [
+                { inputId: 'id_password', buttonId: 'loginPasswordToggle' },
+                { inputId: 'id_password', buttonId: 'registerPasswordToggle' },
+                { inputId: 'id_confirm_password', buttonId: 'registerConfirmPasswordToggle' }
+            ];
+
+            passwordToggles.forEach(({ inputId, buttonId }) => {
+                const passwordInput = document.getElementById(inputId);
+                const toggleButton = document.getElementById(buttonId);
+                if (!passwordInput || !toggleButton) return;
+
+                toggleButton.addEventListener('click', function() {
+                    const isHidden = passwordInput.type === 'password';
+                    passwordInput.type = isHidden ? 'text' : 'password';
+                    const icon = toggleButton.querySelector('i');
+                    if (icon) {
+                        icon.className = isHidden ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill';
+                    }
+                    toggleButton.setAttribute('aria-label', isHidden ? 'Hide password' : 'Show password');
+                });
+            });
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>
