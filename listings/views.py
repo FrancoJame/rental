@@ -89,18 +89,10 @@ def landlord_register(request):
     if request.method == 'POST':
         form = LandlordRegisterForm(request.POST)
         if form.is_valid():
-            # Create the user
-            user = form.save(commit=False)
-            user.set_password(form.cleaned_data["password"])
-            user.save()
-            
-            # Save the NIN to the landlord profile
+            # Create the user and landlord profile, then send verification
+            user = form.save()
             national_id = form.cleaned_data.get('national_id_number')
-            if national_id:
-                landlord_profile, _ = LandlordProfile.objects.get_or_create(user=user)
-                landlord_profile.national_id_number = national_id
-                landlord_profile.save()
-            
+
             # Create email verification record
             email_verification = EmailVerification.objects.create(user=user)
             verification_code = email_verification.generate_code()
@@ -110,11 +102,11 @@ def landlord_register(request):
             user_message = f"""
 Dear {user.first_name},
 
-Welcome to Dream House Uganda! Your account has been created successfully.
+Welcome to Dream House Uganda! Your landlord account has been created successfully.
 
-To complete your registration and access your landlord dashboard, please verify your email address by entering the following 6-digit code:
+To complete your registration and access your dashboard, enter the 6-digit verification code sent to the email address you registered with.
 
-CODE: {verification_code}
+Verification code: {verification_code}
 
 This code will expire in 15 minutes.
 
@@ -252,9 +244,14 @@ def landlord_login(request):
             password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
             if user is not None:
+                profile = get_landlord_profile(user)
+                if profile and not profile.email_verified:
+                    messages.warning(request, "Your account is not verified yet. Please enter the 6-digit code sent to your email.")
+                    return redirect('verify_email', user_id=user.id)
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name or user.username}!")
                 return redirect('dashboard')
+            messages.error(request, "Invalid username or password.")
         else:
             messages.error(request, "Invalid username or password.")
     else:
