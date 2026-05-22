@@ -1,4 +1,3 @@
-
 # Django settings for housing_project project.
 #
 # This file contains all configuration for the Django project, including
@@ -23,8 +22,14 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-yi#wzwry7e$=xr6#6)ruf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# CORRECTED LINE:
+# ALLOWED HOSTS
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,rental-murex-iota.vercel.app,.vercel.app,dreamhouse-ug.vercel.app', cast=Csv())
+
+# CSRF Trusted Origins - Crucial for Vercel deployment HTTPS forms to pass security checks
+CSRF_TRUSTED_ORIGINS = [
+    'https://rental-murex-iota.vercel.app',
+    'https://dreamhouse-ug.vercel.app',
+]
 
 # Application definition
 
@@ -35,12 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'listings',
+    'listings',  # Your core app managing users, houses, and messages
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # For serving static files on Vercel
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -54,7 +59,7 @@ ROOT_URLCONF = 'housing_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'], # Allows a global templates directory if needed
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -70,10 +75,11 @@ WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
 # Database Configuration - FIXED FOR PRODUCTION POSTGRESQL
-# Automatically uses your Neon database on Vercel, falls back to SQLite locally
-if os.environ.get('DATABASE_URL'):
+# Automatically uses your Neon/Postgres database on Vercel, falls back to SQLite locally
+if os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None):
     DATABASES = {
         'default': dj_database_url.config(
+            default=config('DATABASE_URL', default=None),
             conn_max_age=600,
             conn_health_checks=True,
         )
@@ -85,6 +91,9 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
+# Custom User Model configuration for Customer, Landlord, and General Manager Roles
+AUTH_USER_MODEL = 'listings.User'
 
 # Route session storage to cache engine to complement memory writes
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
@@ -114,7 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Kampala'  # Updated to match local project market timeline
 
 USE_I18N = True
 
@@ -127,10 +136,17 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise compression
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Modern WhiteNoise configuration for Django 4.2+ & 5.0+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 
-# Media files (uploaded photos, etc.)
+# Media files (uploaded house photos, etc.)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -138,7 +154,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = 'login'
 
-# Security settings for production
+# Security settings for production environment safety
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000  # 1 year
@@ -154,7 +170,7 @@ if not DEBUG:
         "img-src": ("'self'", "data:", "https:"),
     }
 else:
-    # Development settings
+    # Development settings safety fallbacks
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
     CSRF_COOKIE_SECURE = False
@@ -168,7 +184,7 @@ EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='your-email@gmail.com')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='your-app-password')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@dreamhouse.ug')
 
-# Admin email for notifications
+# Admin/General Manager email for critical oversight alerts
 ADMIN_EMAIL = 'mutebifrancis33@gmail.com'
 
 # Session timeout (1 hour)
