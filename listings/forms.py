@@ -1,12 +1,15 @@
 from django import forms
-from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from .models import Listing, Message
+from .models import User, Listing, Message, LandlordProfile
 import re
 
+# ==========================================
+# 1. LANDLORD AUTHENTICATION & REGISTRATION
+# ==========================================
 class LandlordRegisterForm(forms.ModelForm):
     """
-    Form for landlord registration, including comprehensive validation for email, password, and phone.
+    Form for landlord registration, mapped cleanly to the Custom User model.
+    Handles automated password hashing validation and verification profiles.
     """
     username = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Choose Username'}),
@@ -27,6 +30,10 @@ class LandlordRegisterForm(forms.ModelForm):
         min_length=2,
         max_length=50
     )
+    phone_number = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., 0770000000'}),
+        help_text="Primary phone used for system processes."
+    )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
         help_text="Minimum 8 characters, include uppercase, lowercase, numbers, and special characters.",
@@ -45,7 +52,7 @@ class LandlordRegisterForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email', 'password']
+        fields = ['username', 'first_name', 'last_name', 'email', 'phone_number', 'password']
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -60,10 +67,18 @@ class LandlordRegisterForm(forms.ModelForm):
         if User.objects.filter(email=email).exists():
             raise ValidationError("A user with this email address already exists.")
         return email
+
+    def clean_phone_number(self):
+        phone = self.cleaned_data.get('phone_number')
+        if phone:
+            digits = re.sub(r'\D', '', phone)
+            if not ((len(digits) == 12 and digits.startswith('256')) or 
+                    (len(digits) == 10 and digits.startswith('07'))):
+                raise ValidationError("Invalid phone number. Use format like +256770000000 or 0770000000.")
+        return phone
     
     def clean_national_id_number(self):
         national_id = self.cleaned_data.get('national_id_number')
-        from .models import LandlordProfile
         if LandlordProfile.objects.filter(national_id_number=national_id).exists():
             raise ValidationError("This National ID number is already registered.")
         return national_id
@@ -75,11 +90,9 @@ class LandlordRegisterForm(forms.ModelForm):
         first_name = cleaned_data.get("first_name")
         last_name = cleaned_data.get("last_name")
 
-        # Validate password match
         if password and confirm_password and password != confirm_password:
             self.add_error('confirm_password', "Passwords do not match.")
         
-        # Validate password strength
         if password:
             if len(password) < 8:
                 self.add_error('password', "Password must be at least 8 characters long.")
@@ -92,7 +105,6 @@ class LandlordRegisterForm(forms.ModelForm):
             if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
                 self.add_error('password', "Password must contain at least one special character (!@#$%^&*).")
         
-        # Validate names
         if first_name and not first_name.replace(' ', '').isalpha():
             self.add_error('first_name', "First name should only contain letters.")
         if last_name and not last_name.replace(' ', '').isalpha():
@@ -103,11 +115,20 @@ class LandlordRegisterForm(forms.ModelForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.set_password(self.cleaned_data["password"])
+        user.role = User.LANDLORD  # Enforces landlord role assignment on submission
         if commit:
             user.save()
+            # Explicitly creates the profile layer using the cleaned national ID number
+            LandlordProfile.objects.create(
+                user=user,
+                national_id_number=self.cleaned_data.get('national_id_number')
+            )
         return user
 
 
+# ==========================================
+# 2. HOUSE PROPERTY POSTING MANAGEMENT
+# ==========================================
 class ListingForm(forms.ModelForm):
     """
     Form for creating or editing a house listing with comprehensive validation.
@@ -174,7 +195,6 @@ class ListingForm(forms.ModelForm):
         phone = self.cleaned_data.get('telephone')
         if phone:
             digits = re.sub(r'\D', '', phone)
-            # Valid Uganda numbers: 256XXXXXXXXX (12 digits) or 07XXXXXXXXX (10 digits)
             if not ((len(digits) == 12 and digits.startswith('256')) or 
                     (len(digits) == 10 and digits.startswith('07'))):
                 raise ValidationError("Invalid phone number. Use format like +256770000000 or 0770000000.")
@@ -199,6 +219,9 @@ class ListingForm(forms.ModelForm):
         return description
 
 
+# ==========================================
+# 3. TENANT DIRECT COMMUNICATION PIPELINE
+# ==========================================
 class MessageForm(forms.ModelForm):
     """
     Form for sending a message to a landlord about a listing with validation.
@@ -267,4 +290,3 @@ class MessageForm(forms.ModelForm):
         if message and len(message.strip()) < 10:
             raise ValidationError("Message must be at least 10 characters.")
         return message
-
