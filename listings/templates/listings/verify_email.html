@@ -1,0 +1,100 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Verify Email - Dream House Uganda{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-5">
+            <div class="form-card rounded-4">
+                
+                <!-- Card Header -->
+                <div class="text-center mb-4">
+                    <div class="bg-success text-white d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-envelope-check-fill fs-1"></i>
+                    </div>
+                    <h2 class="fw-bold text-dark m-0">Verify Your Email</h2>
+                    <p class="text-muted small mt-2">We've sent a 6-digit verification code to your email address. Please enter it below.</p>
+                </div>
+
+                <!-- Messages -->
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <!-- Verification Form -->
+                <form method="POST" class="needs-validation">
+                    {% csrf_token %}
+                    
+                    <!-- Email display -->
+                    <div class="alert alert-info mb-4 py-3" role="alert">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <div>
+                                <strong>Verification Email:</strong>
+                                <br>
+                                <span class="text-muted">{{ user.email }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 6-digit code input -->
+                    <div class="mb-4">
+                        <label for="verification_code" class="form-label fw-bold">Enter 6-Digit Code <span class="text-danger">*</span></label>
+                        <input 
+                            type="text" 
+                            name="verification_code" 
+                            id="verification_code" 
+                            class="form-control form-control-lg text-center fw-bold tracking-wider" 
+                            placeholder="000000" 
+                            maxlength="6"
+                            pattern="[0-9]{6}"
+                            inputmode="numeric"
+                            required
+                            autofocus
+                            style="letter-spacing: 0.5rem; font-size: 1.5rem;"
+                        >
+                        <div class="form-text text-center mt-2">
+                            Code expires in <strong>15 minutes</strong>
+                        </div>
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="d-grid mb-3">
+                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6 fw-bold">Verify Email & Continue</button>
+                    </div>
+                </form>
+
+                <hr class="my-4 text-secondary">
+
+                <!-- Help section -->
+                <div class="text-center small">
+                    <p class="text-muted mb-2">Didn't receive the code?</p>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-sm">Register Again</a>
+                        <a href="{% url 'home' %}" class="btn btn-light btn-sm">Back to Home</a>
+                    </div>
+                </div>
+
+                <!-- Info box -->
+                <div class="alert alert-light mt-4 border border-secondary-subtle rounded-3" role="alert">
+                    <h6 class="fw-bold text-success mb-2"><i class="bi bi-shield-check"></i> Your Security Matters</h6>
+                    <p class="small text-muted mb-0">We take your security seriously. This verification code ensures that only you can access your landlord account. Never share this code with anyone.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tracking-wider {
+        letter-spacing: 0.5rem !important;
+    }
+</style>
+{% endblock %}

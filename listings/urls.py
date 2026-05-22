@@ -8,6 +8,7 @@ urlpatterns = [
     
     # Landlord auth
     path('register/', views.landlord_register, name='register'),
+    path('verify-email/<int:user_id>/', views.verify_email, name='verify_email'),
     path('login/', views.landlord_login, name='login'),
     path('logout/', views.landlord_logout, name='logout'),
     
@@ -26,4 +27,6 @@ urlpatterns = [
     # Messaging
     path('house/<int:pk>/send-message/', views.send_message, name='send_message'),
     path('messages/', views.landlord_messages, name='landlord_messages'),
+    path('messages/<int:message_id>/', views.message_detail, name='message_detail'),
+    path('messages/<int:message_id>/responded/', views.mark_message_responded, name='mark_message_responded'),
 ]

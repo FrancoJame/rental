@@ -1,5 +1,26 @@
 # Quick Start Guide for Housing Project
 
+## 🆕 NEW FEATURES (May 2026)
+
+### Email Verification System
+- Users must verify email with 6-digit code after registration
+- Verification codes sent to registered email
+- Admin notifications sent to mutebifrancis33@gmail.com
+- Users cannot add listings until email is verified
+
+### NIN Registration Field
+- All new landlords must provide National ID Number (NIN)
+- NIN is unique and required
+- Stored in user profile for verification
+
+### Android Compatibility Fixes
+- Fixed form submission issues on Android devices
+- Better error handling and validation
+- File size and type validation
+- Double-submission prevention
+
+---
+
 ## Local Development Setup
 
 ### 1. Clone & Install
@@ -27,11 +48,36 @@ For local development, your `.env` should look like:
 DEBUG=True
 SECRET_KEY=django-insecure-test-key-not-for-production
 ALLOWED_HOSTS=localhost,127.0.0.1
+
+# NEW: Email Configuration (Required for new features)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your-email@gmail.com
+EMAIL_HOST_PASSWORD=your-app-password
+DEFAULT_FROM_EMAIL=noreply@dreamhouse.ug
+ADMIN_EMAIL=mutebifrancis33@gmail.com
 ```
 
-### 3. Initialize Database
+### 2a. Email Setup (NEW - Required!)
+
+**For Gmail:**
+1. Enable 2-factor authentication on your Gmail account
+2. Go to: https://myaccount.google.com/apppasswords
+3. Select: App = Mail, Device = Windows Computer
+4. Copy the generated password
+5. Add to .env: `EMAIL_HOST_PASSWORD=your-generated-password`
+
+**For Other Email Services:**
+Contact your email provider for SMTP settings
+
+### 3. Initialize Database (⚠️ NEW: Must run migrations for new features)
 ```bash
+# REQUIRED for new email verification and NIN features:
+python manage.py makemigrations
 python manage.py migrate
+
+# Create superuser for admin access
 python manage.py createsuperuser
 ```
 

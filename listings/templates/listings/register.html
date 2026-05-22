@@ -63,6 +63,15 @@
                         {% endif %}
                     </div>
 
+                    <div class="mb-3">
+                        <label class="form-label">{{ form.national_id_number.label }}</label>
+                        {{ form.national_id_number }}
+                        {% if form.national_id_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.national_id_number.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.national_id_number.help_text }}</div>
+                    </div>
+
                     <div class="row g-3 mb-4">
                         <div class="col-sm-6">
                             <label class="form-label">{{ form.password.label }}</label>
