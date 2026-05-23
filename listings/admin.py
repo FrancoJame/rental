@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 from django.urls import reverse
 from django.db.models import Count, Q
 from django.contrib.auth.admin import UserAdmin
@@ -160,11 +161,11 @@ class ListingAdmin(admin.ModelAdmin):
     
     def status_display(self, obj):
         if obj.is_taken:
-            return format_html('<span style="color: #999; font-weight: bold;">DELETED (Taken)</span>')
+            return mark_safe('<span style="color: #999; font-weight: bold;">DELETED (Taken)</span>')
         elif obj.is_available:
-            return format_html('<span style="color: green; font-weight: bold;">Available</span>')
+            return mark_safe('<span style="color: green; font-weight: bold;">Available</span>')
         else:
-            return format_html('<span style="color: red; font-weight: bold;">Not Available</span>')
+            return mark_safe('<span style="color: red; font-weight: bold;">Not Available</span>')
     status_display.short_description = 'Status'
     
     def messages_count(self, obj):
@@ -226,14 +227,14 @@ class LandlordProfileAdmin(admin.ModelAdmin):
     
     def email_verified_display(self, obj):
         if obj.email_verified:
-            return format_html('<span style="color: green; font-weight: bold;">✓ Verified</span>')
-        return format_html('<span style="color: red; font-weight: bold;">✗ Not Verified</span>')
+            return mark_safe('<span style="color: green; font-weight: bold;">✓ Verified</span>')
+        return mark_safe('<span style="color: red; font-weight: bold;">✗ Not Verified</span>')
     email_verified_display.short_description = 'Email Verified'
     
     def is_verified_display(self, obj):
         if obj.is_verified:
-            return format_html('<span style="color: green; font-weight: bold;">✓ Verified</span>')
-        return format_html('<span style="color: orange; font-weight: bold;">⊘ Pending</span>')
+            return mark_safe('<span style="color: green; font-weight: bold;">✓ Verified</span>')
+        return mark_safe('<span style="color: orange; font-weight: bold;">⊘ Pending</span>')
     is_verified_display.short_description = 'ID Verified'
     
     def listings_count(self, obj):
@@ -256,8 +257,8 @@ class EmailVerificationAdmin(admin.ModelAdmin):
     
     def is_verified_display(self, obj):
         if obj.is_verified:
-            return format_html('<span style="color: green; font-weight: bold;">✓ Verified</span>')
-        return format_html('<span style="color: red; font-weight: bold;">✗ Pending</span>')
+            return mark_safe('<span style="color: green; font-weight: bold;">✓ Verified</span>')
+        return mark_safe('<span style="color: red; font-weight: bold;">✗ Pending</span>')
     is_verified_display.short_description = 'Status'
     
     def code_display(self, obj):
@@ -266,8 +267,8 @@ class EmailVerificationAdmin(admin.ModelAdmin):
     
     def is_expired_display(self, obj):
         if obj.is_expired():
-            return format_html('<span style="color: red;">Expired</span>')
-        return format_html('<span style="color: green;">Valid</span>')
+            return mark_safe('<span style="color: red;">Expired</span>')
+        return mark_safe('<span style="color: green;">Valid</span>')
     is_expired_display.short_description = 'Expires In'
 
 
@@ -326,8 +327,8 @@ class MessageAdmin(admin.ModelAdmin):
     
     def read_status_display(self, obj):
         if obj.is_read:
-            return format_html('<span style="color: green; font-weight: bold;">✓ Read</span>')
-        return format_html('<span style="color: red; font-weight: bold;">Unread</span>')
+            return mark_safe('<span style="color: green; font-weight: bold;">✓ Read</span>')
+        return mark_safe('<span style="color: red; font-weight: bold;">Unread</span>')
     read_status_display.short_description = 'Status'
     
     def offered_price_display(self, obj):
@@ -339,7 +340,7 @@ class MessageAdmin(admin.ModelAdmin):
             method = obj.response_method or 'Unknown'
             date = obj.response_date.strftime('%Y-%m-%d %H:%M') if obj.response_date else ''
             return format_html('<span style="color: green; font-weight: bold;">✓ Responded</span><br/><small>{} on {}</small>', method, date)
-        return format_html('<span style="color: orange;">Awaiting Response</span>')
+        return mark_safe('<span style="color: orange;">Awaiting Response</span>')
     response_status_display.short_description = 'Landlord Response'
     
     def created_at_display(self, obj):
