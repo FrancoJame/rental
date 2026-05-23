@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic.base import RedirectView
 from . import views
 
 urlpatterns = [
@@ -10,6 +11,7 @@ urlpatterns = [
     path('register/', views.landlord_register, name='register'),
     path('verify-email/<int:user_id>/', views.verify_email, name='verify_email'),
     path('login/', views.landlord_login, name='login'),
+    path('login/admin/', RedirectView.as_view(url='/admin/', permanent=False), name='admin_redirect'),
     path('logout/', views.landlord_logout, name='logout'),
     
     # Static informational pages

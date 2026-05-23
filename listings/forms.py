@@ -128,6 +128,31 @@ class LandlordRegisterForm(forms.ModelForm):
         return user
 
 
+class EmailVerificationForm(forms.Form):
+    verification_code = forms.CharField(
+        label='Verification Code',
+        max_length=6,
+        min_length=6,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control form-control-lg text-center fw-bold tracking-wider',
+            'placeholder': '000000',
+            'maxlength': '6',
+            'pattern': '[0-9]{6}',
+            'inputmode': 'numeric',
+            'autofocus': 'autofocus',
+        }),
+        help_text='Enter the 6-digit code sent to your email address.',
+    )
+
+    def clean_verification_code(self):
+        code = self.cleaned_data.get('verification_code', '').strip()
+        if not code.isdigit():
+            raise ValidationError('The verification code must contain only digits.')
+        if len(code) != 6:
+            raise ValidationError('The verification code must be exactly 6 digits long.')
+        return code
+
+
 # ==========================================
 # 2. HOUSE PROPERTY POSTING MANAGEMENT
 # ==========================================

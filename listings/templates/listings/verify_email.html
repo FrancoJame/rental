@@ -43,23 +43,14 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <!-- 6-digit code input -->
+
+                    <!-- Code field -->
                     <div class="mb-4">
-                        <label for="verification_code" class="form-label fw-bold">Enter 6-Digit Code <span class="text-danger">*</span></label>
-                        <input 
-                            type="text" 
-                            name="verification_code" 
-                            id="verification_code" 
-                            class="form-control form-control-lg text-center fw-bold tracking-wider" 
-                            placeholder="000000" 
-                            maxlength="6"
-                            pattern="[0-9]{6}"
-                            inputmode="numeric"
-                            required
-                            autofocus
-                            style="letter-spacing: 0.5rem; font-size: 1.5rem;"
-                        >
+                        {{ form.verification_code.label_tag }}
+                        {{ form.verification_code }}
+                        {% if form.verification_code.errors %}
+                            <div class="text-danger small mt-1">{{ form.verification_code.errors.0 }}</div>
+                        {% endif %}
                         <div class="form-text text-center mt-2">
                             Code expires in <strong>15 minutes</strong>
                         </div>
@@ -69,6 +60,11 @@
                     <div class="d-grid mb-3">
                         <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6 fw-bold">Verify Email & Continue</button>
                     </div>
+                </form>
+
+                <form method="POST" class="text-center">
+                    {% csrf_token %}
+                    <button type="submit" name="resend_code" class="btn btn-link btn-sm">Resend verification code</button>
                 </form>
 
                 <hr class="my-4 text-secondary">

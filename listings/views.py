@@ -7,7 +7,7 @@ from django.db.models import Max
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Listing, Message, LandlordProfile, EmailVerification, User
-from .forms import LandlordRegisterForm, ListingForm, MessageForm
+from .forms import LandlordRegisterForm, ListingForm, MessageForm, EmailVerificationForm
 
 """
 View functions for the listings app.
@@ -166,6 +166,33 @@ Dream House Uganda System
 
 
 # 3.5 Email Verification
+def send_verification_email(user, verification_code):
+    subject = "Dream House Uganda - Email Verification"
+    message = f"""
+Dear {user.first_name},
+
+Welcome to Dream House Uganda! Your landlord account has been created successfully.
+
+To complete your registration and access your dashboard, enter the 6-digit verification code sent to the email address you registered with.
+
+Verification code: {verification_code}
+
+This code will expire in 15 minutes.
+
+If you did not create this account, please contact us immediately.
+
+Best regards,
+Dream House Uganda Team
+    """
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        [user.email],
+        fail_silently=False,
+    )
+
+
 def verify_email(request, user_id):
     """
     Email verification page where user enters the 6-digit code.
@@ -187,38 +214,39 @@ def verify_email(request, user_id):
         login(request, user)
         messages.success(request, f"Welcome, {user.first_name}! Your email is already verified.")
         return redirect('dashboard')
-    
+
+    form = EmailVerificationForm(request.POST or None)
     if request.method == 'POST':
-        code = request.POST.get('verification_code', '').strip()
-        
-        if not code:
-            messages.error(request, "Please enter the 6-digit code.")
-        elif len(code) != 6 or not code.isdigit():
-            messages.error(request, "Please enter a valid 6-digit code.")
-        else:
+        if 'resend_code' in request.POST:
             email_verification = user.email_verification
-            
+            verification_code = email_verification.generate_code()
+            send_verification_email(user, verification_code)
+            messages.success(request, "A new verification code has been sent to your email.")
+            return redirect('verify_email', user_id=user_id)
+
+        if form.is_valid():
+            code = form.cleaned_data['verification_code']
+            email_verification = user.email_verification
+
             if email_verification.is_expired():
-                messages.error(request, "Your verification code has expired. Please register again.")
-                user.delete()
-                return redirect('register')
+                verification_code = email_verification.generate_code()
+                send_verification_email(user, verification_code)
+                messages.warning(request, "Your previous code expired. We've sent a fresh one to your email.")
+                return redirect('verify_email', user_id=user_id)
             
             if email_verification.code == code:
-                # Mark email as verified
                 from django.utils import timezone
                 email_verification.is_verified = True
                 email_verification.verified_at = timezone.now()
                 email_verification.save()
-                
-                # Mark landlord profile as verified
+
                 landlord_profile = get_landlord_profile(user)
                 if landlord_profile is None:
                     messages.error(request, "Unable to complete verification. Please contact support.")
                     return redirect('register')
                 landlord_profile.email_verified = True
                 landlord_profile.save()
-                
-                # Log the user in
+
                 login(request, user)
                 messages.success(request, f"Welcome, {user.first_name}! Your email has been verified. You can now add your rental properties.")
                 return redirect('dashboard')
@@ -227,7 +255,8 @@ def verify_email(request, user_id):
     
     context = {
         'user': user,
-        'user_id': user_id
+        'user_id': user_id,
+        'form': form,
     }
     return render(request, 'listings/verify_email.html', context)
 
