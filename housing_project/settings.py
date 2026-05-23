@@ -98,7 +98,7 @@ else:
 AUTH_USER_MODEL = 'listings.User'
 
 # Route session storage to cache engine to complement memory writes
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'  # Default to DB sessions for reliability across multiple workers
 
 
 # Password validation
@@ -148,8 +148,8 @@ STORAGES = {
     },
 }
 
-if DEBUG:
-    STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
+#if DEBUG:
+    #STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Media files (uploaded house photos, etc.)
 MEDIA_URL = '/media/'
@@ -172,7 +172,7 @@ if not DEBUG:
         "default-src": ("'self'",),
         "script-src": ("'self'",),
         "style-src": ("'self'", "'unsafe-inline'"),
-        "img-src": ("'self'", "data:", "https:"),
+        "img-src": ("'self'", "data:", "https:", "*.cloudinary.com"),
     }
 else:
     # Development settings safety fallbacks
