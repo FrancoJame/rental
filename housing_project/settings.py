@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'listings',  # Your core app managing users, houses, and messages
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -139,7 +141,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Modern WhiteNoise configuration for Django 4.2+ & 5.0+
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
