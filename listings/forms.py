@@ -120,11 +120,11 @@ class LandlordRegisterForm(forms.ModelForm):
         user.role = User.LANDLORD  # Enforces landlord role assignment on submission
         if commit:
             user.save()
-            # Explicitly creates the profile layer using the cleaned national ID number
-            LandlordProfile.objects.create(
-                user=user,
-                national_id_number=self.cleaned_data.get('national_id_number')
-            )
+            # The post_save signal automatically creates LandlordProfile, 
+            # so we just need to update it with the national_id_number
+            profile, _ = LandlordProfile.objects.get_or_create(user=user)
+            profile.national_id_number = self.cleaned_data.get('national_id_number')
+            profile.save(update_fields=['national_id_number'])
         return user
 
 

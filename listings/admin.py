@@ -89,7 +89,7 @@ class CustomUserAdmin(UserAdmin):
     def get_inline_instances(self, request, obj=None):
         # Dynamically append Landlord profiles & Landlord property listings only if the user is a Landlord
         if obj and obj.role == User.LANDLORD:
-            return [LandlordProfileInline(self.admin_site, self), ListingInline(self.admin_site, self)]
+            return [LandlordProfileInline(self.model, self.admin_site), ListingInline(self.model, self.admin_site)]
         return []
 
 
