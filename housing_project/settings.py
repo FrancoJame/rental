@@ -148,6 +148,12 @@ STORAGES = {
     },
 }
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'dj7y4rbj6',
+    'API_KEY': '816875948945751',
+    'API_SECRET': 'UUUeZ0L41TCIBCK4esymBBVIhZA'
+}
+
 #if DEBUG:
     #STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
