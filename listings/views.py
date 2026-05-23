@@ -158,7 +158,10 @@ Dream House Uganda System
                 messages.error(request, f"Account created, but we had trouble sending the verification email: {str(e)}")
                 return redirect('verify_email', user_id=user.id)
         else:
-            messages.error(request, "Please correct the errors below.")
+            # Form errors will be displayed inline on the registration page.
+            # Avoid adding a generic messages.error here because it persists across
+            # redirects and can appear on the verification page unintentionally.
+            pass
     else:
         form = LandlordRegisterForm()
         
