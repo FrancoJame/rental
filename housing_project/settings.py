@@ -77,22 +77,37 @@ WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 
 # Database Configuration - FIXED FOR PRODUCTION POSTGRESQL
-# Automatically uses your Neon/Postgres database on Vercel, falls back to SQLite locally
-if os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None):
+# Prioritizes native system environment variables on Vercel, falls back to SQLite locally.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
-            default=config('DATABASE_URL', default=None),
+            default=DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
+            ssl_require=True
         )
     }
 else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+    # Local fallback using python-decouple to check local .env, then standard SQLite
+    local_db_url = config('DATABASE_URL', default=None)
+    if local_db_url:
+        DATABASES = {
+            'default': dj_database_url.config(
+                default=local_db_url,
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
         }
-    }
+    else:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': BASE_DIR / "db.sqlite3",
+            }
+        }
+
 
 # Custom User Model configuration for Customer, Landlord, and General Manager Roles
 AUTH_USER_MODEL = 'listings.User'
@@ -153,9 +168,6 @@ CLOUDINARY_STORAGE = {
     'API_KEY': '816875948945751',
     'API_SECRET': 'UUUeZ0L41TCIBCK4esymBBVIhZA'
 }
-
-#if DEBUG:
-    #STATICFILES_STORAGE = "django.contrib.staticfiles.storage.StaticFilesStorage"
 
 # Media files (uploaded house photos, etc.)
 MEDIA_URL = '/media/'
