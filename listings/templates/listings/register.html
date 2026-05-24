@@ -8,8 +8,7 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-6">
             <div class="form-card rounded-4">
-                
-                <!-- Card Header -->
+
                 <div class="text-center mb-4">
                     <div class="bg-emerald-light text-success d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-2" style="background-color: var(--primary-light); width: 60px; height: 60px;">
                         <i class="bi bi-person-plus-fill fs-2"></i>
@@ -17,11 +16,10 @@
                     <h2 class="fw-bold text-dark m-0">Create Landlord Account</h2>
                     <p class="text-muted small">Register to list and manage your properties</p>
                 </div>
-                
-                <!-- Registration Form -->
+
                 <form method="POST" action="{% url 'register' %}" class="needs-validation">
                     {% csrf_token %}
-                    
+
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger mb-3">
                             {% for error in form.non_field_errors %}
@@ -63,6 +61,16 @@
                         {% endif %}
                     </div>
 
+                    <!-- FIX 7: phone_number field was missing from original template -->
+                    <div class="mb-3">
+                        <label class="form-label"><i class="bi bi-telephone-fill text-success"></i> {{ form.phone_number.label }}</label>
+                        {{ form.phone_number }}
+                        {% if form.phone_number.errors %}
+                            <div class="text-danger small mt-1">{{ form.phone_number.errors.0 }}</div>
+                        {% endif %}
+                        <div class="form-text">{{ form.phone_number.help_text }}</div>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">{{ form.national_id_number.label }}</label>
                         {{ form.national_id_number }}
@@ -100,12 +108,12 @@
                     </div>
 
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6">Register & Verify Email</button>
+                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6">Register &amp; Verify Email</button>
                     </div>
                 </form>
-                
+
                 <hr class="my-4 text-secondary">
-                
+
                 <div class="text-center">
                     <p class="text-muted mb-0 small">Already have a landlord account?</p>
                     <a href="{% url 'login' %}" class="fw-bold text-success text-decoration-none small">Log in to Landlord Portal</a>

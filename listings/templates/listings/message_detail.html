@@ -1,0 +1,122 @@
+{% extends 'listings/base.html' %}
+{% load static %}
+
+{% block title %}Message Detail - Housing.ug{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+    <div class="mb-4">
+        <a href="{% url 'landlord_messages' %}" class="btn btn-outline-secondary d-inline-flex align-items-center gap-2">
+            <i class="bi bi-arrow-left"></i> Back to Messages
+        </a>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <!-- Sender Info Card -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-bottom py-3 d-flex align-items-center gap-3">
+                    <div class="rounded-circle bg-success d-flex align-items-center justify-content-center text-white fw-bold"
+                        style="width:48px;height:48px;font-size:1.2rem;">
+                        {{ message.sender_name|first|upper }}
+                    </div>
+                    <div>
+                        <h5 class="fw-bold m-0 text-dark">{{ message.sender_name }}</h5>
+                        <span class="text-muted small">{{ message.created_at|date:"D, d M Y \a\t H:i" }}</span>
+                    </div>
+                    {% if message.landlord_response_sent %}
+                        <span class="badge bg-success-subtle text-success ms-auto px-3 py-2 rounded-pill">Responded</span>
+                    {% else %}
+                        <span class="badge bg-warning-subtle text-warning ms-auto px-3 py-2 rounded-pill">Awaiting Response</span>
+                    {% endif %}
+                </div>
+
+                <div class="card-body p-4">
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <p class="text-muted small mb-1">Email</p>
+                            <a href="mailto:{{ message.sender_email }}" class="fw-semibold text-dark text-decoration-none">
+                                <i class="bi bi-envelope-fill text-success me-1"></i>{{ message.sender_email }}
+                            </a>
+                        </div>
+                        <div class="col-sm-6">
+                            <p class="text-muted small mb-1">Phone</p>
+                            <a href="tel:{{ message.sender_phone }}" class="fw-semibold text-dark text-decoration-none">
+                                <i class="bi bi-telephone-fill text-success me-1"></i>{{ message.sender_phone }}
+                            </a>
+                        </div>
+                        {% if message.offered_price %}
+                        <div class="col-sm-6">
+                            <p class="text-muted small mb-1">Offered Price</p>
+                            <span class="fw-bold text-success">UGX {{ message.offered_price|floatformat:0 }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="col-sm-6">
+                            <p class="text-muted small mb-1">Regarding Listing</p>
+                            <a href="{% url 'listing_detail' message.listing.id %}" class="fw-semibold text-primary text-decoration-none">
+                                <i class="bi bi-house-fill me-1"></i>{{ message.listing.title }}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="bg-light rounded-3 p-3 mb-4">
+                        <p class="text-muted small mb-1 fw-semibold">Message</p>
+                        <p class="text-dark mb-0" style="white-space: pre-wrap;">{{ message.message_text }}</p>
+                    </div>
+
+                    <!-- Response Actions -->
+                    {% if not message.landlord_response_sent %}
+                    <div class="border-top pt-4">
+                        <h6 class="fw-bold text-dark mb-3">Respond to this enquiry:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a href="{{ sender_whatsapp_url }}" target="_blank" class="btn btn-success d-flex align-items-center gap-2">
+                                <i class="bi bi-whatsapp"></i> WhatsApp
+                            </a>
+                            <a href="mailto:{{ message.sender_email }}" class="btn btn-outline-primary d-flex align-items-center gap-2">
+                                <i class="bi bi-envelope-fill"></i> Email
+                            </a>
+                            <a href="tel:{{ message.sender_phone }}" class="btn btn-outline-secondary d-flex align-items-center gap-2">
+                                <i class="bi bi-telephone-fill"></i> Call
+                            </a>
+                        </div>
+                        <div class="mt-3">
+                            <p class="text-muted small mb-2">Mark how you responded:</p>
+                            <form method="POST" action="{% url 'mark_message_responded' message.id %}" class="d-flex flex-wrap gap-2 align-items-center">
+                                {% csrf_token %}
+                                <select name="response_method" class="form-select form-select-sm" style="width:auto;">
+                                    <option value="email">Email</option>
+                                    <option value="whatsapp">WhatsApp</option>
+                                    <option value="both">Both</option>
+                                </select>
+                                <button type="submit" class="btn btn-sm btn-emerald">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Mark as Responded
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="border-top pt-4">
+                        <p class="text-success fw-semibold mb-1">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            You responded via <strong>{{ message.response_method|capfirst }}</strong>
+                            {% if message.response_date %}on {{ message.response_date|date:"d M Y" }}{% endif %}.
+                        </p>
+                        <div class="d-flex gap-2 mt-2">
+                            <a href="{{ sender_whatsapp_url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                                <i class="bi bi-whatsapp"></i> WhatsApp Again
+                            </a>
+                            <a href="mailto:{{ message.sender_email }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-envelope-fill"></i> Email Again
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

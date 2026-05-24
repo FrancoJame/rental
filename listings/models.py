@@ -27,7 +27,6 @@ class User(AbstractUser):
 
     role = models.CharField(max_length=15, choices=ROLE_CHOICES, default=CUSTOMER)
 
-    # Global phone validation for standard Ugandan formats
     phone_regex = RegexValidator(
         regex=r'^\+?256\d{9}$|^0\d{9}$',
         message="Phone number must be valid Ugandan format: '07XXXXXXXX' or '+2567XXXXXXXX'."
@@ -75,12 +74,10 @@ class Listing(models.Model):
     image_inside = models.ImageField(upload_to='listings/images/', help_text="Inside view of the room")
     image_other = models.ImageField(upload_to='listings/images/', help_text="Any other view (e.g. compound or bathroom)")
 
-    # Description and features
     description = models.TextField(help_text="Detailed description of the house")
     in_gate = models.BooleanField(default=False, verbose_name="Located inside a gate")
     inner_bathroom = models.BooleanField(default=False, verbose_name="Has inner bathroom")
 
-    # Status and timestamps
     is_available = models.BooleanField(default=True, verbose_name="Available")
     is_taken = models.BooleanField(default=False, verbose_name="Marked as taken")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -93,37 +90,27 @@ class Listing(models.Model):
         return f"{self.get_room_type_display()} in {self.location} - UGX {self.price_per_month:,}"
 
     def clean(self):
-        """
-        Model-level validation. Only runs when explicitly called (e.g. via admin).
-        The ListingForm handles validation for all web form submissions.
-        """
+        """Model-level validation — runs via admin. ListingForm handles web form validation."""
         errors = {}
-
         if self.price_per_month and self.price_per_month <= 0:
             errors['price_per_month'] = "Price must be greater than 0 UGX."
         if self.price_per_month and self.price_per_month > 999999999:
             errors['price_per_month'] = "Price limit exceeded."
-
         if self.telephone and not self._validate_phone_number(self.telephone):
             errors['telephone'] = "Invalid phone number format. Use +2567... or 07... or 771234567."
-
         if self.title and len(self.title.strip()) < 10:
             errors['title'] = "Title must be at least 10 characters long."
         if self.location and len(self.location.strip()) < 3:
             errors['location'] = "Location must be at least 3 characters long."
         if self.description and len(self.description.strip()) < 20:
             errors['description'] = "Description must be at least 20 characters long."
-
         if errors:
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        # FIX: Removed self.full_clean() — it breaks image uploads to Cloudinary.
-        # The ListingForm already validates all fields before save() is called.
-        # Handle is_taken: only delete if this is an existing listing (has a pk).
-        if self.is_taken and self.pk:
-            self.delete()
-            return
+        # FIX 1: Removed self.full_clean() — breaks Cloudinary image uploads (500 error).
+        # FIX 3: is_taken deletion is now handled in the view, not here.
+        # This method is now a clean, simple save.
         super().save(*args, **kwargs)
 
     @staticmethod
@@ -148,7 +135,6 @@ class Listing(models.Model):
             clean_phone = '256' + digits_only
         else:
             clean_phone = digits_only
-
         message = (
             f"Hello! I saw your listing on Dream House Uganda for a "
             f"{self.get_room_type_display()} in {self.location} "
@@ -212,7 +198,6 @@ class EmailVerification(models.Model):
 class Message(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='messages')
 
-    # Sender info (anonymous-friendly — no login required to message a landlord)
     sender = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='sent_messages',
         null=True, blank=True,
@@ -227,7 +212,6 @@ class Message(models.Model):
     is_read = models.BooleanField(default=False, verbose_name="Read by landlord")
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # Landlord Response Tracking
     landlord_response_sent = models.BooleanField(default=False, verbose_name="Landlord responded")
     response_method = models.CharField(
         max_length=20,
@@ -253,8 +237,7 @@ class Message(models.Model):
             raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
-        # FIX: Removed self.full_clean() to avoid interfering with form-validated saves.
-        # MessageForm already validates all fields. full_clean() here caused 500 errors.
+        # FIX 1: Removed self.full_clean() — MessageForm already validates everything.
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -269,7 +252,6 @@ class Message(models.Model):
             clean_phone = '256' + digits_only
         else:
             clean_phone = digits_only
-
         reply_msg = f"Hello {self.sender_name}, responding to your inquiry about the listing: {self.listing.title}."
         return f"https://wa.me/{clean_phone}?text={urllib.parse.quote(reply_msg)}"
 

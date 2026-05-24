@@ -54,3 +54,9 @@ htmlcov/
 
 # OS
 Thumbs.db
+
+# Extra safety additions
+*.sqlite3
+debug_*.py
+test_register.py
+create_verify_demo.py

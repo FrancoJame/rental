@@ -9,44 +9,30 @@ from django.conf import settings
 from .models import Listing, Message, LandlordProfile, EmailVerification, User
 from .forms import LandlordRegisterForm, ListingForm, MessageForm, EmailVerificationForm
 
-"""
-View functions for the listings app.
-Handles all business logic for displaying listings, details, messaging, registration, etc.
-"""
-
 
 def get_landlord_profile(user):
-    """Return the landlord profile for a user, creating one if the user is a landlord and missing the profile."""
+    """Return the landlord profile for a user, creating one if missing."""
     if user.role != User.LANDLORD:
         return None
     profile, _ = LandlordProfile.objects.get_or_create(user=user)
     return profile
 
+
 # 1. Public home page with filters
 def home_page(request):
-    # Retrieve all available listings
     listings = Listing.objects.filter(is_available=True)
-    
-    # Get all distinct locations currently listed (for filter dropdown)
     existing_locations = Listing.objects.filter(is_available=True).values_list('location', flat=True).distinct()
-    # Normalize locations: strip whitespace and get distinct list
     location_list = sorted(list(set(loc.strip() for loc in existing_locations if loc)))
-    
-    # Find max price in database for the range slider default
     max_db_price = Listing.objects.filter(is_available=True).aggregate(Max('price_per_month'))['price_per_month__max'] or 2000000
-    
-    # Get filters from request
+
     search_location = request.GET.get('location', '').strip()
     room_type = request.GET.get('room_type', '')
     price_max = request.GET.get('price_max', '')
-    
-    # Apply filters
+
     if search_location:
         listings = listings.filter(location__icontains=search_location)
-        
     if room_type:
         listings = listings.filter(room_type=room_type)
-        
     if price_max:
         try:
             listings = listings.filter(price_per_month__lte=int(price_max))
@@ -66,45 +52,34 @@ def home_page(request):
 
 # 2. Detailed listing view
 def listing_detail(request, pk):
-    """
-    Show details for a single house listing.
-    """
-    # Landlord can view their own listing even if marked as taken (is_available=False)
     listing = get_object_or_404(Listing, pk=pk)
     if not listing.is_available and (not request.user.is_authenticated or listing.landlord != request.user):
         messages.warning(request, "This listing is no longer available.")
         return redirect('home')
-        
-    context = {
-        'listing': listing
-    }
-    return render(request, 'listings/detail.html', context)
+    return render(request, 'listings/detail.html', {'listing': listing})
 
 
 # 3. Landlord Registration
 def landlord_register(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-        
+
     if request.method == 'POST':
         form = LandlordRegisterForm(request.POST)
         if form.is_valid():
-            # Create the user and landlord profile, then send verification
             user = form.save()
             national_id = form.cleaned_data.get('national_id_number')
 
-            # Create email verification record
             email_verification = EmailVerification.objects.create(user=user)
             verification_code = email_verification.generate_code()
-            
-            # Send verification email to user
+
             user_subject = "Dream House Uganda - Email Verification"
             user_message = f"""
 Dear {user.first_name},
 
 Welcome to Dream House Uganda! Your landlord account has been created successfully.
 
-To complete your registration and access your dashboard, enter the 6-digit verification code sent to the email address you registered with.
+To complete your registration and access your dashboard, enter the 6-digit verification code below.
 
 Verification code: {verification_code}
 
@@ -115,8 +90,7 @@ If you did not create this account, please contact us immediately.
 Best regards,
 Dream House Uganda Team
             """
-            
-            # Send verification email to admin
+
             admin_subject = f"New Landlord Registration - {user.first_name} {user.last_name}"
             admin_message = f"""
 A new landlord has registered on Dream House Uganda:
@@ -132,83 +106,45 @@ Please verify this user in the admin panel.
 Best regards,
 Dream House Uganda System
             """
-            
+
             try:
-                # Send to user
-                send_mail(
-                    user_subject,
-                    user_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [user.email],
-                    fail_silently=False,
-                )
-                
-                # Send to admin
-                send_mail(
-                    admin_subject,
-                    admin_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [settings.ADMIN_EMAIL],
-                    fail_silently=False,
-                )
-                
+                send_mail(user_subject, user_message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
+                send_mail(admin_subject, admin_message, settings.DEFAULT_FROM_EMAIL, [settings.ADMIN_EMAIL], fail_silently=False)
                 messages.success(request, f"Account created! A verification code has been sent to {user.email}.")
-                return redirect('verify_email', user_id=user.id)
             except Exception as e:
                 messages.error(request, f"Account created, but we had trouble sending the verification email: {str(e)}")
-                return redirect('verify_email', user_id=user.id)
-        else:
-            # Form errors will be displayed inline on the registration page.
-            # Avoid adding a generic messages.error here because it persists across
-            # redirects and can appear on the verification page unintentionally.
-            pass
+
+            return redirect('verify_email', user_id=user.id)
     else:
         form = LandlordRegisterForm()
-        
+
     return render(request, 'listings/register.html', {'form': form})
 
 
-# 3.5 Email Verification
+# 3.5 Email Verification helper
 def send_verification_email(user, verification_code):
     subject = "Dream House Uganda - Email Verification"
     message = f"""
 Dear {user.first_name},
 
-Welcome to Dream House Uganda! Your landlord account has been created successfully.
-
-To complete your registration and access your dashboard, enter the 6-digit verification code sent to the email address you registered with.
-
-Verification code: {verification_code}
+Your new verification code is: {verification_code}
 
 This code will expire in 15 minutes.
-
-If you did not create this account, please contact us immediately.
 
 Best regards,
 Dream House Uganda Team
     """
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user.email],
-        fail_silently=False,
-    )
+    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
 
 
 def verify_email(request, user_id):
-    """
-    Email verification page where user enters the 6-digit code.
-    """
     UserModel = get_user_model()
-    
     try:
         user = UserModel.objects.get(id=user_id)
     except UserModel.DoesNotExist:
         messages.error(request, "Invalid verification request.")
         return redirect('register')
-    
-    # Check if user is already verified
+
     if user.email_verification.is_verified:
         landlord_profile = get_landlord_profile(user)
         if landlord_profile is None:
@@ -236,7 +172,7 @@ def verify_email(request, user_id):
                 send_verification_email(user, verification_code)
                 messages.warning(request, "Your previous code expired. We've sent a fresh one to your email.")
                 return redirect('verify_email', user_id=user_id)
-            
+
             if email_verification.code == code:
                 from django.utils import timezone
                 email_verification.is_verified = True
@@ -255,20 +191,15 @@ def verify_email(request, user_id):
                 return redirect('dashboard')
             else:
                 messages.error(request, "Invalid verification code. Please try again.")
-    
-    context = {
-        'user': user,
-        'user_id': user_id,
-        'form': form,
-    }
-    return render(request, 'listings/verify_email.html', context)
+
+    return render(request, 'listings/verify_email.html', {'user': user, 'user_id': user_id, 'form': form})
 
 
 # 4. Landlord Login
 def landlord_login(request):
     if request.user.is_authenticated:
         return redirect('dashboard')
-        
+
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -293,7 +224,7 @@ def landlord_login(request):
             messages.error(request, "Invalid username or password.")
     else:
         form = AuthenticationForm()
-        
+
     return render(request, 'listings/login.html', {'form': form})
 
 
@@ -310,27 +241,23 @@ def landlord_logout(request):
 def landlord_dashboard(request):
     profile = get_landlord_profile(request.user)
     if profile is None:
-        messages.error(request, "Only landlords can access the dashboard. Please register as a landlord or return to the homepage.")
+        messages.error(request, "Only landlords can access the dashboard.")
         return redirect('home')
 
-    email_verified = profile.email_verified
-    
-    if not email_verified:
+    if not profile.email_verified:
         messages.warning(request, "Please verify your email to add listings. Check your email for the verification code.")
-    
+
     user_listings = Listing.objects.filter(landlord=request.user)
-    
-    # Calculate quick dashboard stats
     total_listings = user_listings.count()
     available_listings = user_listings.filter(is_available=True).count()
     taken_listings = total_listings - available_listings
-    
+
     context = {
         'listings': user_listings,
         'total_listings': total_listings,
         'available_listings': available_listings,
         'taken_listings': taken_listings,
-        'email_verified': email_verified
+        'email_verified': profile.email_verified,
     }
     return render(request, 'listings/landlord_dashboard.html', context)
 
@@ -343,11 +270,10 @@ def house_create(request):
         messages.error(request, "Only landlords can add listings.")
         return redirect('home')
 
-    # Check if email is verified
     if not profile.email_verified:
-        messages.error(request, "Please verify your email before adding listings. Check your email inbox for the verification code.")
+        messages.error(request, "Please verify your email before adding listings.")
         return redirect('dashboard')
-    
+
     if request.method == 'POST':
         form = ListingForm(request.POST, request.FILES)
         if form.is_valid():
@@ -357,31 +283,40 @@ def house_create(request):
             messages.success(request, f"New listing '{listing.title}' added successfully!")
             return redirect('dashboard')
         else:
-            # Return form with errors to show to user on mobile
             messages.error(request, "Please fix the errors below and try again.")
-            context = {'form': form, 'action': 'Add'}
-            return render(request, 'listings/house_form.html', context)
     else:
         form = ListingForm()
-        
+
     return render(request, 'listings/house_form.html', {'form': form, 'action': 'Add'})
 
 
 # 8. Edit listing
+# FIX 3: Handle is_taken in the view so we control the flow cleanly.
 @login_required
 def house_update(request, pk):
     listing = get_object_or_404(Listing, pk=pk, landlord=request.user)
+
     if request.method == 'POST':
         form = ListingForm(request.POST, request.FILES, instance=listing)
         if form.is_valid():
-            form.save()
-            messages.success(request, f"Listing '{listing.title}' updated successfully!")
+            updated_listing = form.save(commit=False)
+
+            # FIX 3: If landlord marks as taken, delete the listing and redirect cleanly.
+            if updated_listing.is_taken:
+                title = listing.title
+                listing.delete()
+                messages.success(request, f"Listing '{title}' has been marked as taken and removed.")
+                return redirect('dashboard')
+
+            updated_listing.save()
+            messages.success(request, f"Listing '{updated_listing.title}' updated successfully!")
             return redirect('dashboard')
         else:
             messages.error(request, "Failed to update listing. Please check the fields.")
     else:
         form = ListingForm(instance=listing)
-        
+
+    # Always pass listing into context so existing images show correctly
     return render(request, 'listings/house_form.html', {'form': form, 'action': 'Edit', 'listing': listing})
 
 
@@ -396,14 +331,15 @@ def house_delete(request, pk):
     return redirect('dashboard')
 
 
-# 10. Toggle Listing Availability (taken / available)
+# 10. Toggle Listing Availability — FIX 9: now requires POST
 @login_required
 def toggle_availability(request, pk):
     listing = get_object_or_404(Listing, pk=pk, landlord=request.user)
-    listing.is_available = not listing.is_available
-    listing.save()
-    status = "Available" if listing.is_available else "Taken"
-    messages.success(request, f"Listing '{listing.title}' is now marked as {status}.")
+    if request.method == 'POST':
+        listing.is_available = not listing.is_available
+        listing.save()
+        status = "Available" if listing.is_available else "Taken"
+        messages.success(request, f"Listing '{listing.title}' is now marked as {status}.")
     return redirect('dashboard')
 
 
@@ -417,21 +353,17 @@ def contact_page(request):
     return render(request, 'listings/contact.html')
 
 
-# 13. Policy Guidelines Page
+# 13. Policy Page
 def policy_page(request):
     return render(request, 'listings/policy.html')
 
 
 # 14. Send Message to Landlord
 def send_message(request, pk):
-    """
-    Handle sending a message from a customer to a landlord for a specific listing.
-    """
     listing = get_object_or_404(Listing, pk=pk)
-    
+
     if request.method == 'POST':
         data = request.POST.copy()
-        # If offered_price is empty, set it to the listing price
         if not data.get('offered_price'):
             data['offered_price'] = listing.price_per_month
         form = MessageForm(data)
@@ -444,36 +376,26 @@ def send_message(request, pk):
         else:
             messages.error(request, "Please fill in all required fields correctly.")
     else:
-        # Prefill offered_price with the listing price
         form = MessageForm(initial={'offered_price': listing.price_per_month})
-    context = {
-        'form': form,
-        'listing': listing
-    }
-    return render(request, 'listings/send_message.html', context)
+
+    return render(request, 'listings/send_message.html', {'form': form, 'listing': listing})
 
 
 # 15. Landlord Messages
 @login_required
 def landlord_messages(request):
-    # Get all messages for listings belonging to this landlord
-    landlord_messages = Message.objects.filter(listing__landlord=request.user).select_related('listing').order_by('-created_at')
-    
-    # Count unread messages
-    unread_count = landlord_messages.filter(is_read=False).count()
-    
-    # Mark all messages as read
-    landlord_messages.filter(is_read=False).update(is_read=True)
-    
-    # Separate messages by response status
-    pending_messages = landlord_messages.filter(landlord_response_sent=False)
-    responded_messages = landlord_messages.filter(landlord_response_sent=True)
-    
+    landlord_msgs = Message.objects.filter(listing__landlord=request.user).select_related('listing').order_by('-created_at')
+    unread_count = landlord_msgs.filter(is_read=False).count()
+    landlord_msgs.filter(is_read=False).update(is_read=True)
+
+    pending_messages = landlord_msgs.filter(landlord_response_sent=False)
+    responded_messages = landlord_msgs.filter(landlord_response_sent=True)
+
     context = {
-        'messages': landlord_messages,
+        'messages': landlord_msgs,
         'pending_messages': pending_messages,
         'responded_messages': responded_messages,
-        'unread_count': unread_count
+        'unread_count': unread_count,
     }
     return render(request, 'listings/landlord_messages.html', context)
 
@@ -481,47 +403,32 @@ def landlord_messages(request):
 # 16. Mark Message as Responded
 @login_required
 def mark_message_responded(request, message_id):
-    """
-    Mark a customer message as responded by the landlord.
-    Landlord can choose to respond via Email or WhatsApp
-    """
     message = get_object_or_404(Message, id=message_id, listing__landlord=request.user)
-    
+
     if request.method == 'POST':
         response_method = request.POST.get('response_method', 'email')
-        
         if response_method not in ['email', 'whatsapp', 'both']:
             messages.error(request, "Invalid response method.")
             return redirect('landlord_messages')
-        
-        # Update message as responded
+
         from django.utils import timezone
         message.landlord_response_sent = True
         message.response_method = response_method
         message.response_date = timezone.now()
         message.save()
-        
         messages.success(request, f"Message marked as responded via {response_method}.")
-    
+
     return redirect('landlord_messages')
 
 
-# 17. Message Detail View
+# 17. Message Detail View — FIX 2: template now exists (message_detail.html created)
 @login_required
 def message_detail(request, message_id):
-    """
-    Show detailed view of a single message with response tracking options.
-    """
     message = get_object_or_404(Message, id=message_id, listing__landlord=request.user)
-    
-    # Mark as read
     message.is_read = True
     message.save()
-    
-    context = {
+
+    return render(request, 'listings/message_detail.html', {
         'message': message,
-        'sender_whatsapp_url': message.sender_whatsapp_url
-    }
-    return render(request, 'listings/message_detail.html', context)
-
-
+        'sender_whatsapp_url': message.sender_whatsapp_url,
+    })
