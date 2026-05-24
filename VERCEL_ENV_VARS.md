@@ -1,31 +1,44 @@
-# Required Vercel Environment Variables
+# Vercel Environment Variables — Required Setup
 
-Set these in: Vercel Dashboard → Your Project → Settings → Environment Variables
+Go to: Vercel Dashboard → Your Project → Settings → Environment Variables
 
-| Variable | Description | Example |
-|---|---|---|
-| `SECRET_KEY` | Django secret key (generate a new one!) | `django-insecure-...` |
-| `DEBUG` | Always `False` in production | `False` |
-| `ALLOWED_HOSTS` | Your Vercel domain | `dreamhouse-ug.vercel.app` |
-| `DATABASE_URL` | PostgreSQL connection string (Neon/Supabase) | `postgresql://user:pass@host/db` |
-| `CLOUDINARY_CLOUD_NAME` | Your Cloudinary cloud name | `dj7y4rbj6` |
-| `CLOUDINARY_API_KEY` | Your Cloudinary API key | `816875948945751` |
-| `CLOUDINARY_API_SECRET` | Your Cloudinary API secret | `UUUeZ0...` |
-| `EMAIL_HOST_USER` | Gmail address | `frankjames256@gmail.com` |
-| `EMAIL_HOST_PASSWORD` | Gmail App Password (NOT your real password!) | `xxxx xxxx xxxx xxxx` |
-| `DEFAULT_FROM_EMAIL` | From address for emails | `noreply@dreamhouse.ug` |
-| `ADMIN_EMAIL` | Admin notification email | `mutebifrancis33@gmail.com` |
+Add ALL of the following variables:
 
-## How to generate a Gmail App Password
+| Variable | Value |
+|---|---|
+| `SECRET_KEY` | `django-insecure-yi#wzwry7e$=xr6#6)ruf85b6!8g7j38)*h#dhhcid&s2@b3l$` |
+| `DEBUG` | `False` |
+| `ALLOWED_HOSTS` | `dreamhouse-ug.vercel.app,.vercel.app` |
+| `DATABASE_URL` | Your Neon/Supabase PostgreSQL URL |
+| `CLOUDINARY_CLOUD_NAME` | `dj7y4rbj6` |
+| `CLOUDINARY_API_KEY` | `816875948945751` |
+| `CLOUDINARY_API_SECRET` | `UUUeZ0L41TCIBCK4esymBBVIhZA` |
+| `EMAIL_HOST_USER` | `frankjames256@gmail.com` |
+| `EMAIL_HOST_PASSWORD` | Your Gmail App Password (see below) |
+| `DEFAULT_FROM_EMAIL` | `frankjames256@gmail.com` |
+| `ADMIN_EMAIL` | `mutebifrancis33@gmail.com` |
+
+---
+
+## CRITICAL: Why the site shows 500 on startup
+
+If you deployed without these env vars, the app crashes immediately because:
+1. `CLOUDINARY_CLOUD_NAME` missing → cloudinary_storage fails to initialise
+2. `DATABASE_URL` missing → falls back to SQLite (read-only on Vercel, crashes on write)
+3. `SECRET_KEY` missing → Django refuses to start
+
+**Every variable above must be set in Vercel before the site works.**
+
+---
+
+## How to get a Gmail App Password (NOT your real password)
 1. Go to myaccount.google.com
-2. Security → 2-Step Verification (must be ON)
+2. Security → Enable 2-Step Verification if not already on
 3. Security → App Passwords
-4. Select app: Mail, device: Other → name it "DreamHouse"
-5. Copy the 16-character password into `EMAIL_HOST_PASSWORD`
+4. Select "Mail" + "Other (custom)" → name it "DreamHouse"
+5. Copy the 16-character code → paste as `EMAIL_HOST_PASSWORD`
 
-## How to generate a new SECRET_KEY
-Run this in Python:
-```python
-from django.core.management.utils import get_random_secret_key
-print(get_random_secret_key())
-```
+---
+
+## After adding env vars
+Vercel will redeploy automatically. If not, go to Deployments → Redeploy.

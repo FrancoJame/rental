@@ -35,14 +35,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'listings',
     'cloudinary',
-    # FIX 12: corsheaders properly placed
     'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    # FIX 12: CorsMiddleware must be before CommonMiddleware
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,12 +50,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# FIX 12: CORS — only allow your own domain in production
 CORS_ALLOWED_ORIGINS = [
     'https://dreamhouse-ug.vercel.app',
     'https://rental-murex-iota.vercel.app',
 ]
-# Allow all origins in development
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
 
@@ -139,17 +135,21 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# FIX 2: Use WhitenoiseStorage (not CompressedManifestStaticFilesStorage).
+# CompressedManifest requires a staticfiles.json manifest from collectstatic,
+# which doesn't exist on Vercel — crashing the app on every startup.
+# WhitenoiseStorage works without a pre-built manifest.
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.WhiteNoiseStorage",
     },
 }
 
-# FIX 4: Cloudinary credentials moved to environment variables — never hardcoded.
-# Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET in Vercel env vars.
+# FIX 1 & 4: Cloudinary credentials read from environment variables only.
+# Set these in Vercel Dashboard → Settings → Environment Variables.
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
@@ -163,7 +163,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'
 
 # ==========================================
-# SECURITY SETTINGS (production only)
+# SECURITY (production only)
 # ==========================================
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
@@ -173,8 +173,6 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     SECURE_BROWSER_XSS_FILTER = True
-    # FIX 11: Removed invalid SECURE_CONTENT_SECURITY_POLICY dict — not a Django setting.
-    # Use django-csp package if you need CSP headers.
 else:
     SECURE_SSL_REDIRECT = False
     SESSION_COOKIE_SECURE = False
@@ -191,8 +189,6 @@ else:
     EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
     EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
     EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-    # FIX 6: Use a Gmail App Password here, not your real Gmail password.
-    # Generate one at: Google Account → Security → App Passwords
     EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@dreamhouse.ug')
