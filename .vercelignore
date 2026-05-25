@@ -1,8 +1,6 @@
-# Ignore unnecessary build artifacts and deployment files
-
-# Ignore files that should not be deployed to Vercel
+# Ignore unnecessary files from deployment
 db.sqlite3
-staticfiles/
 media/
 .env
 *.log
+# NOTE: staticfiles/ must NOT be ignored — Vercel needs it to serve CSS/JS
