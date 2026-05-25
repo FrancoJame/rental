@@ -77,36 +77,30 @@ TEMPLATES = [
 WSGI_APPLICATION = 'housing_project.wsgi.application'
 
 # ==========================================
-# DATABASE
+# DATABASE — Neon PostgreSQL
 # ==========================================
-DATABASE_URL = os.environ.get('DATABASE_URL')
+# Neon requires sslmode=require. We parse the URL and enforce SSL via OPTIONS.
+_DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None)
 
-if DATABASE_URL:
+if _DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
-            default=DATABASE_URL,
+            default=_DATABASE_URL,
             conn_max_age=600,
             conn_health_checks=True,
-            ssl_require=True
         )
     }
+    # Enforce SSL for Neon — required for channel_binding to work
+    DATABASES['default'].setdefault('OPTIONS', {})
+    DATABASES['default']['OPTIONS']['sslmode'] = 'require'
 else:
-    local_db_url = config('DATABASE_URL', default=None)
-    if local_db_url:
-        DATABASES = {
-            'default': dj_database_url.config(
-                default=local_db_url,
-                conn_max_age=600,
-                conn_health_checks=True,
-            )
+    # Local SQLite fallback
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
-    else:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.sqlite3',
-                'NAME': BASE_DIR / 'db.sqlite3',
-            }
-        }
+    }
 
 AUTH_USER_MODEL = 'listings.User'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -135,10 +129,7 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# FIX 2: Use WhitenoiseStorage (not CompressedManifestStaticFilesStorage).
-# CompressedManifest requires a staticfiles.json manifest from collectstatic,
-# which doesn't exist on Vercel — crashing the app on every startup.
-# WhitenoiseStorage works without a pre-built manifest.
+# WhiteNoiseStorage — works without a pre-built manifest (safe for Vercel)
 STORAGES = {
     "default": {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
@@ -148,8 +139,7 @@ STORAGES = {
     },
 }
 
-# FIX 1 & 4: Cloudinary credentials read from environment variables only.
-# Set these in Vercel Dashboard → Settings → Environment Variables.
+# Cloudinary — credentials from environment variables only (never hardcoded)
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY': config('CLOUDINARY_API_KEY', default=''),
