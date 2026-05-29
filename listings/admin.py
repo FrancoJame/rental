@@ -49,6 +49,7 @@ class LandlordProfileInline(admin.StackedInline):
     model = LandlordProfile
     can_delete = False
     verbose_name_plural = 'Landlord Profiles'
+    exclude = ('national_id_front', 'national_id_back')
 
 
 class ListingInline(admin.TabularInline):
@@ -199,7 +200,7 @@ class LandlordProfileAdmin(admin.ModelAdmin):
             'fields': ('user',)
         }),
         ('National ID Verification', {
-            'fields': ('national_id_number', 'national_id_front', 'national_id_back')
+            'fields': ('national_id_number',)
         }),
         ('Verification Status', {
             'fields': ('email_verified', 'is_verified')

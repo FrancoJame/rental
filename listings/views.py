@@ -74,12 +74,23 @@ def landlord_register(request):
             verification_code = email_verification.generate_code()
 
             user_subject = "Dream House Uganda - Email Verification"
+            # Get landlord ID for email (generated just below)
+            profile_for_email, _ = LandlordProfile.objects.get_or_create(user=user)
+            if not profile_for_email.landlord_id:
+                profile_for_email.landlord_id = LandlordProfile.generate_landlord_id()
+                profile_for_email.save(update_fields=['landlord_id'])
+
             user_message = f"""
 Dear {user.first_name},
 
 Welcome to Dream House Uganda! Your landlord account has been created successfully.
 
-To complete your registration and access your dashboard, enter the 6-digit verification code below.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+YOUR LANDLORD ID: {profile_for_email.landlord_id}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Please save this ID. You will need it to contact support and verify your account.
+
+To activate your account, enter the 6-digit verification code below:
 
 Verification code: {verification_code}
 
@@ -106,6 +117,12 @@ Please verify this user in the admin panel.
 Best regards,
 Dream House Uganda System
             """
+
+            # Generate unique Landlord ID (DH-AB1234 format) and save to profile
+            profile, _ = LandlordProfile.objects.get_or_create(user=user)
+            if not profile.landlord_id:
+                profile.landlord_id = LandlordProfile.generate_landlord_id()
+                profile.save(update_fields=['landlord_id'])
 
             try:
                 send_mail(user_subject, user_message, settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
@@ -187,7 +204,12 @@ def verify_email(request, user_id):
                 landlord_profile.save()
 
                 login(request, user)
-                messages.success(request, f"Welcome, {user.first_name}! Your email has been verified. You can now add your rental properties.")
+                # Show the landlord ID prominently on first login
+                try:
+                    lid = user.landlord_profile.landlord_id or "N/A"
+                except Exception:
+                    lid = "N/A"
+                messages.success(request, f"Welcome, {user.first_name}! Your email is verified. Your Landlord ID is {lid} — save it for future reference.")
                 return redirect('dashboard')
             else:
                 messages.error(request, "Invalid verification code. Please try again.")

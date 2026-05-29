@@ -8,43 +8,71 @@
     <div class="row justify-content-center">
         <div class="col-md-8 col-lg-5">
             <div class="form-card rounded-4">
-                
-                <!-- Card Header -->
+
+                <!-- Header -->
                 <div class="text-center mb-4">
-                    <div class="bg-success text-white d-inline-flex align-items-center justify-content-center rounded-circle p-3 mb-3" style="width: 80px; height: 80px;">
+                    <div class="bg-success text-white d-inline-flex align-items-center justify-content-center rounded-circle mb-3" style="width:80px;height:80px;">
                         <i class="bi bi-envelope-check-fill fs-1"></i>
                     </div>
                     <h2 class="fw-bold text-dark m-0">Verify Your Email</h2>
-                    <p class="text-muted small mt-2">We've sent a 6-digit verification code to your email address. Please enter it below.</p>
+                    <p class="text-muted small mt-2">A 6-digit code was sent to your email. Enter it below to activate your account.</p>
                 </div>
+
+                <!-- Landlord ID Badge -->
+                {% if user.landlord_profile.landlord_id %}
+                <div class="text-center mb-4">
+                    <p class="text-muted small mb-1 fw-semibold text-uppercase">Your Landlord ID</p>
+                    <div class="d-inline-flex align-items-center gap-2 bg-dark text-white px-4 py-2 rounded-3">
+                        <i class="bi bi-person-badge-fill text-warning fs-5"></i>
+                        <span class="fw-bold fs-4 tracking-wider" style="letter-spacing:0.15em;">
+                            {{ user.landlord_profile.landlord_id }}
+                        </span>
+                    </div>
+                    <p class="text-muted small mt-2">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Save this ID — you'll need it for support and account recovery.
+                    </p>
+                </div>
+                {% endif %}
 
                 <!-- Messages -->
                 {% if messages %}
                     {% for message in messages %}
                         <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-3" role="alert">
                             {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
 
+                <!-- Verification Code Banner (Instant View) -->
+                <div class="alert alert-success border border-success-subtle mb-4 py-3 rounded-3 text-center shadow-sm position-relative overflow-hidden" style="background: rgba(209, 231, 221, 0.4); backdrop-filter: blur(10px);">
+                    <div class="d-flex flex-column align-items-center">
+                        <span class="badge bg-success text-white text-uppercase px-3 py-1 mb-2 fw-semibold tracking-wider" style="font-size: 0.75rem;">Verification Code</span>
+                        <div class="display-5 fw-bold text-success mb-2 tracking-widest font-monospace" style="letter-spacing: 0.25em;">
+                            {{ user.email_verification.code }}
+                        </div>
+                        <p class="small text-muted mb-0">
+                            Please enter this code below to verify your email and activate your account.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Email hint -->
+                <div class="alert alert-info mb-4 py-3">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-info-circle-fill"></i>
+                        <div>
+                            <strong>Code sent to:</strong><br>
+                            <span class="text-muted">{{ user.email }}</span>
+                        </div>
+                    </div>
+                </div>
+
+
                 <!-- Verification Form -->
                 <form method="POST" class="needs-validation">
                     {% csrf_token %}
-                    
-                    <!-- Email display -->
-                    <div class="alert alert-info mb-4 py-3" role="alert">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="bi bi-info-circle-fill"></i>
-                            <div>
-                                <strong>Verification Email:</strong>
-                                <br>
-                                <span class="text-muted">{{ user.email }}</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Code field -->
                     <div class="mb-4">
                         {{ form.verification_code.label_tag }}
                         {{ form.verification_code }}
@@ -56,32 +84,34 @@
                         </div>
                     </div>
 
-                    <!-- Submit button -->
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6 fw-bold">Verify Email & Continue</button>
+                        <button type="submit" class="btn btn-emerald btn-lg py-2 fs-6 fw-bold">
+                            <i class="bi bi-shield-check me-2"></i>Verify & Activate Account
+                        </button>
                     </div>
                 </form>
 
-                <form method="POST" class="text-center">
+                <!-- Resend -->
+                <form method="POST" class="text-center mb-3">
                     {% csrf_token %}
-                    <button type="submit" name="resend_code" class="btn btn-link btn-sm">Resend verification code</button>
+                    <button type="submit" name="resend_code" class="btn btn-link btn-sm text-muted">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Resend verification code
+                    </button>
                 </form>
 
                 <hr class="my-4 text-secondary">
 
-                <!-- Help section -->
                 <div class="text-center small">
-                    <p class="text-muted mb-2">Didn't receive the code?</p>
+                    <p class="text-muted mb-2">Having trouble?</p>
                     <div class="d-grid gap-2">
                         <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-sm">Register Again</a>
                         <a href="{% url 'home' %}" class="btn btn-light btn-sm">Back to Home</a>
                     </div>
                 </div>
 
-                <!-- Info box -->
-                <div class="alert alert-light mt-4 border border-secondary-subtle rounded-3" role="alert">
+                <div class="alert alert-light mt-4 border border-secondary-subtle rounded-3">
                     <h6 class="fw-bold text-success mb-2"><i class="bi bi-shield-check"></i> Your Security Matters</h6>
-                    <p class="small text-muted mb-0">We take your security seriously. This verification code ensures that only you can access your landlord account. Never share this code with anyone.</p>
+                    <p class="small text-muted mb-0">Never share your verification code or Landlord ID with anyone. Dream House Uganda staff will never ask for your password.</p>
                 </div>
             </div>
         </div>
@@ -89,8 +119,6 @@
 </div>
 
 <style>
-    .tracking-wider {
-        letter-spacing: 0.5rem !important;
-    }
+.tracking-wider { letter-spacing: 0.5rem !important; }
 </style>
 {% endblock %}
